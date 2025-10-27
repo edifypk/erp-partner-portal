@@ -79,14 +79,14 @@ const layout = ({ children }) => {
                             var isActive = (v.slug == activeTab)
                             return (
                                 <Link href={`${v.slug}`} id={v.slug} onClick={() => { setActiveTab(v.slug); updateLeft(v.slug) }} key={i} className={`py-2 px-2 flex cursor-pointer items-center font-medium text-sm gap-1`}>
-                                    <div className={`whitespace-nowrap ${isActive ? "text-black" : "text-gray-400"}`}>{v.name}</div>
+                                    <div className={`whitespace-nowrap ${isActive ? "text-primary" : "text-gray-400"}`}>{v.name}</div>
                                 </Link>
                             )
                         })
                     }
                 </div>
                 <div className='h-[2px] bg-gray-100 relative'>
-                    <div style={refLineStyle} className='absolute transition-all duration-300 bottom-0 bg-black h-full'></div>
+                    <div style={refLineStyle} className='absolute transition-all duration-300 bottom-0 bg-primary h-full'></div>
                 </div>
             </div>
             <div className=''>

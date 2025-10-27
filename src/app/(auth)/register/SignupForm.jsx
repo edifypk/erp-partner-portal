@@ -26,6 +26,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 
 // Zod validation schema
@@ -47,7 +48,7 @@ export default function SignupForm({ onSubmitSuccess }) {
   const [loading, setLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
-
+  const router = useRouter();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
@@ -443,10 +444,10 @@ export default function SignupForm({ onSubmitSuccess }) {
           </div>
 
           <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.5, type: 'spring', stiffness: 100, damping: 10 }} className='text-center tracking-tight text-lg md:text-xl font-semibold mb-1'>Signed up Successfully!</motion.h2>
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 2, type: 'spring', stiffness: 100, damping: 10 }} className='text-center sm:max-w-[75%] mx-auto text-xs md:text-sm text-gray-500 mb-4'>Please check your provided email to fully activate your account.</motion.p>
+          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 2, type: 'spring', stiffness: 100, damping: 10 }} className='text-center sm:max-w-[75%] mx-auto text-xs md:text-sm text-gray-500 mb-4'>Please check your provided email for login credentials.</motion.p>
 
           <div className='flex justify-center'>
-            <motion.button type="button" initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 2.5, type: 'spring', stiffness: 100, damping: 10 }} className='bg-blue-600 cursor-pointer active:scale-95 transition-all duration-300 font-semibold text-white text-xs inline-block px-4 py-2 rounded-full'>Resend Email</motion.button>
+            <motion.button type="button" onClick={() => router.push("/login")} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 2.5, type: 'spring', stiffness: 100, damping: 10 }} className='bg-blue-600 cursor-pointer active:scale-95 transition-all duration-300 font-semibold text-white text-xs inline-block px-4 py-2 rounded-full'>Go to Login</motion.button>
           </div>
 
         </div>

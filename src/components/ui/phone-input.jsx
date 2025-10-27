@@ -60,7 +60,7 @@ const CountrySelect = ({
       value={value}
       onValueChange={(selectedValue) => onChange(selectedValue)}
     >
-      <SelectTrigger className="w-[60px] h-9 border-none rounded-r-none bg-white pl-2 pr-1">
+      <SelectTrigger className="w-[55px] gap-[2px] h-9 border-none rounded-r-none bg-white pl-2 pr-1">
         <SelectValue>
           <FlagComponent country={value} countryName={value} />
         </SelectValue>
@@ -91,7 +91,7 @@ const FlagComponent = ({ country, countryName }) => {
   const Flag = flags[country];
 
   return (
-    <span className="bg-foreground/20  h-4 w-6  overflow-hidden rounded-sm">
+    <span className="bg-foreground/20  h-4 w-6  overflow-hidden rounded-[3px]">
       {Flag && <Flag style={{ width: '100%', height: '100%' }} title={countryName} />}
     </span>
   );

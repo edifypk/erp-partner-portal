@@ -48,8 +48,8 @@ const data = {
       isActive: true
     },
     {
-      title: "Course Finder",
-      url: "/dashboard/course-finder",
+      title: "Course Search",
+      url: "/dashboard/course-search",
       icon: 'search-outline',
       iconSolid: 'search',
       isActive: true

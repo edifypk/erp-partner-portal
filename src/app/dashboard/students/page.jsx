@@ -1,11 +1,16 @@
-import React from 'react'
+import React, { Suspense } from 'react'
+import Students from './Students';
 
-const page = () => {
+
+
+
+const Page = async () => {
+
   return (
-    <div className="h-full overflow-y-auto p-6">
-      students
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Students />
+    </Suspense>
   )
 }
 
-export default page
+export default Page

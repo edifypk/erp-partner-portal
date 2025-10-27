@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { RippleButton } from "../ui/shadcn-io/ripple-button";
 
 export function NavMain({
   items
@@ -56,20 +57,24 @@ export function NavMain({
 
                 <CollapsibleTrigger asChild>
                   <Link href={item.url || '#'}>
-                    <SidebarMenuButton tooltip={item.title} className={`cursor-pointer flex items-center px-3 py-5 ${isActive ? 'bg-white hover:bg-white shadow-[0px_0px_5px_#0002]' : 'bg-transparent'}`}>
+                    <RippleButton className="w-full p-0 shadow-none" variant="ghost" rippleClassName="bg-primary">
 
-                      <div style={{ "--ionicon-stroke-width": 25 }} className={`pt-1 ${isActive ? 'text-blue-600' : 'text-gray-600'} ${open ? 'text-xl' : 'text-base'}`}>
-                        {item.icon && <ion-icon name={isActive ? item.iconSolid : item.icon}></ion-icon>}
+
+                      <div tooltip={item.title} className={`cursor-pointer w-full gap-2 flex items-center px-3 py-5 ${isActive ? 'bg-primary/10 hover:bg-primary/5 shadow-[0px_0px_5px_#0002]' : 'bg-transparent'}`}>
+
+                        <div style={{ "--ionicon-stroke-width": 25 }} className={`pt-1 ${isActive ? 'text-primary' : 'text-gray-400'} ${open ? 'text-xl' : 'text-base'}`}>
+                          {item.icon && <ion-icon name={isActive ? item.iconSolid : item.iconSolid}></ion-icon>}
+                        </div>
+
+                        <div className={isActive ? 'text-primary font-semibold tracking-tight' : 'text-gray-600 font-normal'}>{item.title}</div>
+
+
+                        {item.items?.length > 0 && <ChevronRight
+                          className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />}
+
+
                       </div>
-
-                      <div className={isActive ? 'text-blue-600 font-semibold tracking-tight' : 'text-gray-600 font-normal'}>{item.title}</div>
-
-
-                      {item.items?.length > 0 && <ChevronRight
-                        className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />}
-
-
-                    </SidebarMenuButton>
+                    </RippleButton>
                   </Link>
                 </CollapsibleTrigger>
 

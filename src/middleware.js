@@ -12,12 +12,14 @@ const getUserProfile = async (token) => {
       // Edge runtime fetch defaults are fine; no need for cache here
       cache: 'no-store',
     });
-    // console.log(res.data)
+
+
+   // console.log(res.data)
     if (!res.ok) return null;
     const json = await res.json();
+
     return json?.data ?? null;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -26,7 +28,11 @@ export async function middleware(request) {
   const token = request.cookies.get('agent_token')?.value;
   const { pathname } = request.nextUrl;
 
+
+
   const user = await getUserProfile(token);
+
+
 
 
 

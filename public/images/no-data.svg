@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="148" height="113" viewBox="0 0 148 113" fill="none">
+<g id="æ æ°æ®">
+<g id="Group 1987">
+<g id="Group 1982">
+<ellipse id="Ellipse 86" cx="74" cy="104.5" rx="50" ry="8.5" fill="#F7F7F8"/>
+<path id="Vector 9" d="M47.5 75H34L47.5 58V75Z" fill="#CCD1D7"/>
+<path id="Vector 10" d="M100.5 75H114L100.5 58V75Z" fill="#CCD1D7"/>
+<g id="Group 1981">
+<path id="Rectangle 646" d="M46 25C46 22.7909 47.7909 21 50 21H98C100.209 21 102 22.7909 102 25V85C102 87.2091 100.209 89 98 89H50C47.7909 89 46 87.2091 46 85V25Z" fill="#F6F6F8"/>
+<rect id="Rectangle 647" x="54" y="29" width="40" height="21" rx="2" fill="#DFE3E8"/>
+<rect id="Rectangle 648" x="54" y="58" width="40" height="4" rx="2" fill="#DFE3E8"/>
+<rect id="Rectangle 649" x="54" y="67" width="40" height="4" rx="2" fill="#DFE3E8"/>
+</g>
+<path id="Rectangle 650" d="M34 75H54C55.6569 75 57 76.3431 57 78V79C57 81.2091 58.7909 83 61 83H87C89.2091 83 91 81.2091 91 79V78C91 76.3431 92.3431 75 94 75H98.5H114V101C114 103.209 112.209 105 110 105H38C35.7909 105 34 103.209 34 101V75Z" fill="#E3E5EB"/>
+</g>
+<g id="Group 1986">
+<path id="Union" fill-rule="evenodd" clip-rule="evenodd" d="M127 28C136.389 28 144 22.1797 144 15C144 7.8203 136.389 2 127 2C117.611 2 110 7.8203 110 15C110 17.8759 111.221 20.5337 113.289 22.6867L112.084 26.602C111.842 27.3871 112.598 28.1125 113.373 27.8391L118.213 26.1308C120.777 27.3172 123.784 28 127 28Z" fill="#E3E5EB"/>
+<circle id="Ellipse 88" cx="127" cy="15" r="2" fill="white"/>
+<circle id="Ellipse 89" cx="119" cy="15" r="2" fill="white"/>
+<circle id="Ellipse 90" cx="135" cy="15" r="2" fill="white"/>
+</g>
+</g>
+</g>
+</svg>
