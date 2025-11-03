@@ -16,7 +16,7 @@ const AuthContextProvider = ({ children }) => {
   const getAgentProfile = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/profile`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/profile`, {
         withCredentials: true,
         validateStatus: function (status) {
           // Don't throw error for 401, 403, 404 status codes
@@ -47,7 +47,7 @@ const AuthContextProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/logout`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/logout`, {
         withCredentials: true
       });
       setUser(null);

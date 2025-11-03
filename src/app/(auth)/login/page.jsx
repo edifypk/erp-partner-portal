@@ -87,7 +87,7 @@ export default function Login() {
         setImogi(imogis.find(imogi => imogi.name === "thinkingFace").url);
 
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/check-agent-exists`, {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/check-user-exists`, {
                 email: formData.email
             });
 
@@ -116,7 +116,7 @@ export default function Login() {
         setImogi(imogis.find(imogi => imogi.name === "thinkingFace").url);
 
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/login`, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/login`, {
                 email: formData.email,
                 password: formData.password
             }, {
@@ -151,7 +151,7 @@ export default function Login() {
         setImogi(imogis.find(imogi => imogi.name === "thinkingFace").url);
 
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/send-reset-password-email`, {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/send-reset-password-email`, {
                 email: formData.email
             });
 

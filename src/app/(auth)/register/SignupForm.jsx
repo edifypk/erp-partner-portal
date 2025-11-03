@@ -36,6 +36,7 @@ const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().refine(isValidPhoneNumber, { message: "Invalid phone number" }),
+  country_iso2:z.string().min(2, "Please select a country"),
   country: z.string().min(1, "Please select a country"),
   state: z.string().min(1, "Please select a state"),
   city: z.string().min(1, "Please select a city"),
@@ -97,6 +98,9 @@ export default function SignupForm({ onSubmitSuccess }) {
     setStates([]);
     setCities([]);
 
+
+    form.setValue("country_iso2", countries?.find(country => country.name === countryName)?.iso2 || "");
+
     if (!countryName) return;
 
     setLoadingStates(true);
@@ -153,7 +157,7 @@ export default function SignupForm({ onSubmitSuccess }) {
     var promise = new Promise(async (resolve, reject) => {
       try {
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/signup`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/signup`,
           data
         );
         resolve(response.data);

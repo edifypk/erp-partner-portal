@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 const getUserProfile = async (token) => {
   if (!token) return null;
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/profile`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/profile`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -13,8 +13,6 @@ const getUserProfile = async (token) => {
       cache: 'no-store',
     });
 
-
-   // console.log(res.data)
     if (!res.ok) return null;
     const json = await res.json();
 
@@ -25,7 +23,7 @@ const getUserProfile = async (token) => {
 };
 
 export async function middleware(request) {
-  const token = request.cookies.get('agent_token')?.value;
+  const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
 

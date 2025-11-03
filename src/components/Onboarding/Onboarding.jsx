@@ -7,11 +7,42 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Tick02Icon } from 'hugeicons-react'
 import SubAgentForm from './SubAgentForm'
+import CompanyDocs from './CompanyDocs'
+import ContractSign from './ContractSign'
+import { useAuth } from "@/context/AuthContextProvider"
+import axios from "axios"
 
 const Onboarding = () => {
     const [swiper, setSwiper] = useState()
     const [activeStep, setActiveStep] = useState(1)
+    const [onboardingStatus, setOnboardingStatus] = useState('in_progress')
+    const [loadingStatus, setLoadingStatus] = useState(true)
     const nextButtonRef = useRef(null)
+    const { user } = useAuth()
+
+    // Fetch onboarding status
+    useEffect(() => {
+        const fetchOnboardingStatus = async () => {
+            if (!user?.subagent_team_member?.agent?.agent_id) return;
+
+            try {
+                setLoadingStatus(true);
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+                    { withCredentials: true }
+                );
+
+                const agentData = response.data.data;
+                setOnboardingStatus(agentData.onboarding_status || 'in_progress');
+            } catch (error) {
+                console.error("Error fetching onboarding status:", error);
+            } finally {
+                setLoadingStatus(false);
+            }
+        };
+
+        fetchOnboardingStatus();
+    }, [user]);
 
     const steps = [
         {
@@ -32,15 +63,29 @@ const Onboarding = () => {
     ]
 
     // Handle form submission success
-    const handleFormSuccess = (data) => {
-        console.log("Form submitted successfully:", data)
+    const handleFormSuccess = async (data) => {
+        
+        // Refresh onboarding status after form submission
+        if (user?.subagent_team_member?.agent?.agent_id) {
+            try {
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+                    { withCredentials: true }
+                );
+                const agentData = response.data.data;
+                setOnboardingStatus(agentData.onboarding_status || 'in_progress');
+            } catch (error) {
+                console.error("Error refreshing onboarding status:", error);
+            }
+        }
+        
         nextStep()
     }
 
     const nextStep = () => {
-        console.log('nextStep called, activeStep:', activeStep, 'swiper:', swiper)
+        // console.log('nextStep called, activeStep:', activeStep, 'swiper:', swiper)
         if (activeStep < steps.length) {
-            console.log('Going to next step...')
+            // console.log('Going to next step...')
             setActiveStep(activeStep + 1)
             if (swiper) {
                 swiper.slideNext()
@@ -63,10 +108,33 @@ const Onboarding = () => {
         }
     }
 
+    // Handle step click navigation
+    const handleStepClick = (stepIndex) => {
+        const targetStep = stepIndex + 1;
+        // console.log('handleStepClick called, targetStep:', targetStep, 'activeStep:', activeStep, 'onboardingStatus:', onboardingStatus)
+        
+        // Block access to contract step (step 3) unless onboarding status is approved
+        if (targetStep === 3 && onboardingStatus !== 'approved') {
+            console.log('Cannot navigate to contract step - onboarding status not approved:', onboardingStatus)
+            return;
+        }
+        
+        // Only allow navigation to completed steps or the next step
+        if (targetStep <= activeStep || targetStep === activeStep + 1) {
+            console.log('Navigating to step:', targetStep)
+            setActiveStep(targetStep)
+            if (swiper) {
+                swiper.slideTo(stepIndex)
+            }
+        } else {
+            console.log('Cannot navigate to step:', targetStep, '- not accessible yet')
+        }
+    }
+
     // Sync Swiper with activeStep changes
     useEffect(() => {
         if (swiper && swiper.activeIndex !== activeStep - 1) {
-            console.log('Syncing swiper to activeStep:', activeStep)
+            // console.log('Syncing swiper to activeStep:', activeStep)
             swiper.slideTo(activeStep - 1)
         }
     }, [activeStep, swiper])
@@ -88,8 +156,9 @@ const Onboarding = () => {
                             <div key={index} className='flex items-center'>
                                 {
                                     step.isChecked ?
-                                        <div
-                                            className='w-8 h-8 font-semibold relative border bg-linear-to-br rounded-full p-[2px] from-primary to-primary'
+                                        <button
+                                            onClick={() => handleStepClick(index)}
+                                            className='w-8 h-8 font-semibold relative border bg-linear-to-br rounded-full p-[2px] from-primary to-primary cursor-pointer hover:scale-105 transition-transform'
                                         >
                                             <div className='w-full h-full rounded-full flex justify-center items-center text-white'>
                                                 <Tick02Icon strokeWidth={2.5} size={25} />
@@ -98,20 +167,34 @@ const Onboarding = () => {
                                             <div className='absolute text-gray-500 whitespace-nowrap tracking-tighter text-xs -bottom-6 left-1/2 -translate-x-1/2'>
                                                 {step.label}
                                             </div>
-                                        </div>
+                                        </button>
                                         :
-                                        <div
-                                            className={`w-8 h-8 font-semibold text-sm flex justify-center items-center relative rounded-full border 
-                                        ${activeStep >= (index + 1) ? "bg-linear-to-r text-white from-primary to-primary"
-                                                    : "border-gray-300 text-gray-400"
-                                                }`}
+                                        <button
+                                            onClick={() => handleStepClick(index)}
+                                            className={`w-8 h-8 font-semibold text-sm flex justify-center items-center relative rounded-full border transition-all duration-200
+                                        ${(() => {
+                                            // Special handling for contract step (index 2)
+                                            if (index === 2 && onboardingStatus !== 'approved') {
+                                                return "border-gray-300 text-gray-400 cursor-not-allowed opacity-50";
+                                            }
+                                            
+                                            // Regular step logic
+                                            if (activeStep >= (index + 1)) {
+                                                return "bg-linear-to-r text-white from-primary to-primary cursor-pointer hover:scale-105";
+                                            } else if (activeStep + 1 === (index + 1)) {
+                                                return "border-primary text-primary cursor-pointer hover:scale-105 hover:bg-primary/10";
+                                            } else {
+                                                return "border-gray-300 text-gray-400 cursor-not-allowed opacity-50";
+                                            }
+                                        })()}`}
+                                            disabled={activeStep + 1 < (index + 1) || (index === 2 && onboardingStatus !== 'approved')}
                                         >
                                             {index + 1}
 
                                             <div className='absolute text-gray-500 whitespace-nowrap tracking-tighter text-xs -bottom-6 left-1/2 -translate-x-1/2'>
                                                 {step.label}
                                             </div>
-                                        </div>
+                                        </button>
                                 }
 
 
@@ -127,7 +210,7 @@ const Onboarding = () => {
                 {/* Swiper Slider */}
                 <div className='flex-1 overflow-auto w-full relative px-4'>
 
-                    <div className='max-w-2xl mx-auto overflow-hidden h-fit pt-6 pb-20'>
+                    <div className='max-w-2xl mx-auto overflow-hidden h-fit py-6'>
                         <Swiper
                             activeindex={activeStep}
                             navigation={{
@@ -153,16 +236,8 @@ const Onboarding = () => {
                             {/* Step 2 */}
                             <SwiperSlide>
                                 <div className={`${activeStep == 2 ? "max-h-auto" : "max-h-0"} transition-all duration-300 p-[2px]`}>
-                                    <div className="bg-white rounded-2xl p-8 text-center">
-                                        <div className="mb-6">
-                                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <span className="text-2xl">⚙️</span>
-                                            </div>
-                                            <h2 className="text-2xl font-semibold mb-2">Setup</h2>
-                                            <p className="text-gray-600">
-                                                {steps[1].content}
-                                            </p>
-                                        </div>
+                                    <div className="">
+                                        <CompanyDocs onSubmitSuccess={handleFormSuccess} />
                                     </div>
                                 </div>
                             </SwiperSlide>
@@ -170,16 +245,8 @@ const Onboarding = () => {
                             {/* Step 3 */}
                             <SwiperSlide>
                                 <div className={`${activeStep == 3 ? "max-h-auto" : "max-h-0"} transition-all duration-300 p-[2px]`}>
-                                    <div className="bg-white rounded-2xl p-8 text-center">
-                                        <div className="mb-6">
-                                            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <span className="text-2xl">✅</span>
-                                            </div>
-                                            <h2 className="text-2xl font-semibold mb-2">Complete</h2>
-                                            <p className="text-gray-600">
-                                                {steps[2].content}
-                                            </p>
-                                        </div>
+                                    <div className="">
+                                        <ContractSign />
                                     </div>
                                 </div>
                             </SwiperSlide>
@@ -189,27 +256,9 @@ const Onboarding = () => {
 
                 </div>
 
-                <div className='flex justify-center items-center py-4 gap-4'>
-                    {/* <Button 
-                        variant="outline" 
-                        onClick={prevStep}
-                        disabled={activeStep === 1}
-                        className="swiper-button-prev"
-                    >
-                        Previous
-                    </Button>
-                    <Button 
-                        onClick={nextStep}
-                        disabled={activeStep === steps.length}
-                        className="swiper-button-next"
-                    >
-                        Next
-                    </Button> */}
-                </div>
-
             </div>
 
-            <img src="/images/worldmap.svg" className='opacity-5 absolute inset-0 pt-20' alt="" />
+            <img src="/images/worldmap.svg" className='opacity-5 absolute left-1/2 -translate-x-1/2 w-3/4 h-full top-40' alt="" />
 
         </div>
     )

@@ -62,7 +62,7 @@ export function NavMain({
 
                       <div tooltip={item.title} className={`cursor-pointer w-full gap-2 flex items-center px-3 py-5 ${isActive ? 'bg-primary/10 hover:bg-primary/5 shadow-[0px_0px_5px_#0002]' : 'bg-transparent'}`}>
 
-                        <div style={{ "--ionicon-stroke-width": 25 }} className={`pt-1 ${isActive ? 'text-primary' : 'text-gray-400'} ${open ? 'text-xl' : 'text-base'}`}>
+                        <div style={{ "--ionicon-stroke-width": 25 }} className={`pt-1 ${isActive ? 'text-primary' : 'text-gray-400'} ${open ? 'text-lg' : 'text-base'}`}>
                           {item.icon && <ion-icon name={isActive ? item.iconSolid : item.iconSolid}></ion-icon>}
                         </div>
 

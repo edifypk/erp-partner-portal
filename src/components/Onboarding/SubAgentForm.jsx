@@ -28,11 +28,13 @@ import { toast } from "sonner";
 import { Location05Icon } from "hugeicons-react";
 import { RippleButton } from "../ui/shadcn-io/ripple-button";
 import { useAuth } from "@/context/AuthContextProvider";
+import { useQuery } from '@tanstack/react-query';
 
 // Zod validation schema for sub agent form
 const subAgentSchema = z.object({
   company_name: z.string().min(1, "Company name is required"),
-  website: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+  company_type: z.enum(['sole_proprietorship', 'partnership', 'corporation', 'llc', 'inc', 'other']),
+  website: z.string().url("Please enter a valid website URL"),
   email: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   phone: z.string().refine((val) => !val || isValidPhoneNumber(val), {
     message: "Invalid phone number"
@@ -40,8 +42,8 @@ const subAgentSchema = z.object({
   country: z.string().min(1, "Please select a country"),
   state: z.string().min(1, "Please select a state"),
   city: z.string().min(1, "Please select a city"),
-  zip_code: z.number().optional().or(z.literal("")),
-  address: z.string().optional(),
+  zip_code: z.number(),
+  address: z.string().min(1, "Please enter your address"),
 });
 
 export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
@@ -52,8 +54,23 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
   const [isLoadingAgent, setIsLoadingAgent] = useState(false);
+  const [originalData, setOriginalData] = useState(null);
 
   const { user } = useAuth();
+
+  // React Query for fetching sub-agent data
+  const { data: agentData } = useQuery({
+    queryKey: ['subAgent', user?.subagent_team_member?.agent?.agent_id],
+    queryFn: async () => {
+      if (!user?.subagent_team_member?.agent?.agent_id) return null;
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+        { withCredentials: true }
+      );
+      return response.data.data;
+    },
+    enabled: !!user?.subagent_team_member?.agent?.agent_id,
+  });
 
   // API functions
   const fetchSubAgentData = async (agentId) => {
@@ -86,11 +103,34 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
     }
   };
 
+  // Function to check if form data has changed
+  const hasFormDataChanged = (currentData) => {
+    if (!originalData) return true;
+    
+    // Compare each field
+    const fieldsToCompare = [
+      'company_name', 'company_type', 'website', 'email', 'phone',
+      'country', 'state', 'city', 'zip_code', 'address'
+    ];
+    
+    for (const field of fieldsToCompare) {
+      const originalValue = originalData[field] || '';
+      const currentValue = currentData[field] || '';
+      
+      if (originalValue !== currentValue) {
+        return true;
+      }
+    }
+    
+    return false;
+  };
+
   const form = useForm({
     resolver: zodResolver(subAgentSchema),
     defaultValues: {
       agent_id: defaultValues.agent_id || "",
       company_name: defaultValues.company_name || "",
+      company_type: defaultValues.company_type || "other",
       website: defaultValues.website || "",
       email: defaultValues.email || "",
       phone: defaultValues.phone || "",
@@ -122,14 +162,15 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
       }
 
       // Fetch sub agent data if user is logged in
-      if (user?.agent?.agent_id) {
-        console.log("Fetching data for agent_id:", user.agent.agent_id);
-        const agentData = await fetchSubAgentData(user.agent.agent_id);
-        console.log("Fetched agent data:", agentData);
+      if (user?.subagent_team_member?.agent?.agent_id) {
+        // console.log("Fetching data for agent_id:", user.subagent_team_member.agent.agent_id);
+        const agentData = await fetchSubAgentData(user.subagent_team_member.agent.agent_id);
+        // console.log("Fetched agent data:", agentData);
         if (agentData) {
           // Update form with fetched data
           const formData = {
             company_name: agentData.company_name || "",
+            company_type: agentData.company_type || "other",
             website: agentData.website || "",
             email: agentData.email || "",
             phone: agentData.phone || "",
@@ -141,6 +182,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
           };
           // console.log("Setting form data:", formData);
           form.reset(formData);
+          
+          // Store original data for comparison
+          setOriginalData(formData);
 
           // Load states and cities if country/state are already set
           if (agentData.country) {
@@ -246,18 +290,47 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
     setLoading(true);
 
     try {
-      if (!user?.agent?.agent_id) {
+      if (!user?.subagent_team_member?.agent?.agent_id) {
         toast.error("User not authenticated");
         return;
       }
 
-      // Update sub agent data
-      const result = await updateSubAgentData(user.agent.agent_id, data);
-      
-      toast.success("Business information saved successfully!");
+      // If status is approved, just proceed to next step
+      if (agentData?.onboarding_status === 'approved') {
+        if (onSubmitSuccess) {
+          onSubmitSuccess(data);
+        }
+        return;
+      }
 
-      if (onSubmitSuccess) {
-        onSubmitSuccess(result.data);
+      // Check if status allows editing
+      if (agentData?.onboarding_status && agentData.onboarding_status !== 'in_progress') {
+        toast.info("Your application is under review. Changes are not allowed at this time.");
+        return;
+      }
+
+      // Check if form data has changed
+      const hasChanged = hasFormDataChanged(data);
+      
+      if (hasChanged) {
+        // Update sub agent data only if there are changes
+        const result = await updateSubAgentData(user.subagent_team_member.agent.agent_id, data);
+        
+        // Update original data with the new data
+        setOriginalData(data);
+        
+        toast.success("Business information saved successfully!");
+        
+        if (onSubmitSuccess) {
+          onSubmitSuccess(result.data);
+        }
+      } else {
+        // No changes detected, just proceed to next step
+        toast.success("No changes detected. Proceeding to next step.");
+        
+        if (onSubmitSuccess) {
+          onSubmitSuccess(data);
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -289,9 +362,12 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
 
 
 
+  // Check if form should be disabled
+  const isFormDisabled = agentData?.onboarding_status && agentData.onboarding_status !== 'in_progress';
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-6">
         <div className="grid grid-cols-12 gap-4">
 
 
@@ -300,14 +376,15 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
             control={form.control}
             name="company_name"
             render={({ field }) => (
-              <FormItem className="col-span-12">
+              <FormItem className="col-span-8">
                 <FormLabel>
                   Company Name
                 </FormLabel>
                 <FormControl>
                   <Input
-                    className="bg-white"
+                    className="bg-white disabled:opacity-100"
                     placeholder="Enter your company name"
+                    disabled={isFormDisabled}
                     {...field}
                   />
                 </FormControl>
@@ -318,6 +395,37 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
 
 
 
+          {/* Company Type */}
+          <FormField
+            control={form.control}
+            name="company_type"
+            render={({ field }) => (
+              <FormItem className="col-span-4">
+                <FormLabel>Company Type</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  disabled={isFormDisabled}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full bg-white disabled:opacity-100">
+                      <SelectValue placeholder="Select a company type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent align="start">
+                    <SelectItem value="sole_proprietorship">Sole Proprietorship</SelectItem>
+                    <SelectItem value="partnership">Partnership</SelectItem>
+                    <SelectItem value="corporation">Corporation</SelectItem>
+                    <SelectItem value="llc">LLC</SelectItem>
+                    <SelectItem value="inc">Inc</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {/* <FormMessage /> */}
+              </FormItem>
+            )}
+          />
+
           {/* Email */}
           <FormField
             control={form.control}
@@ -327,9 +435,10 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
-                    className="bg-white"
+                    className="bg-white disabled:opacity-100"
                     type="email"
                     placeholder="contact@yourcompany.com"
+                    disabled={isFormDisabled}
                     {...field}
                   />
                 </FormControl>
@@ -347,10 +456,11 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                 <FormLabel>Phone</FormLabel>
                 <FormControl>
                   <PhoneInput
-                    className="bg-white"
+                    className="bg-white disabled:opacity-100"
                     error={form.formState.errors.phone}
                     defaultCountry="PK"
                     placeholder="Enter a phone number"
+                    disabled={isFormDisabled}
                     {...field}
                   />
                 </FormControl>
@@ -369,8 +479,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                 <FormLabel>Website</FormLabel>
                 <FormControl>
                   <Input
-                    className="bg-white"
+                    className="bg-white disabled:opacity-100"
                     placeholder="https://yourcompany.com"
+                    disabled={isFormDisabled}
                     {...field}
                   />
                 </FormControl>
@@ -395,9 +506,10 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                     <Select
                       onValueChange={(value) => handleCountryChange(value, field.onChange)}
                       value={field.value}
+                      disabled={isFormDisabled}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full bg-white">
+                        <SelectTrigger className="w-full bg-white disabled:opacity-100">
                           <SelectValue placeholder="Select a country" />
                         </SelectTrigger>
                       </FormControl>
@@ -431,7 +543,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                     <Select
                       onValueChange={(value) => handleStateChange(value, field.onChange)}
                       value={field.value}
-                      disabled={!form.watch("country") || loadingStates}
+                      disabled={!form.watch("country") || loadingStates || isFormDisabled}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full bg-white disabled:opacity-100 relative">
@@ -478,7 +590,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={!form.watch("state") || loadingCities}
+                      disabled={!form.watch("state") || loadingCities || isFormDisabled}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full bg-white disabled:opacity-100 relative">
@@ -522,8 +634,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                     <FormLabel>Address</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white"
+                        className="bg-white disabled:opacity-100"
                         placeholder="123 Main Street, Suite 100"
+                        disabled={isFormDisabled}
                         {...field}
                       />
                     </FormControl>
@@ -541,9 +654,10 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                     <FormLabel>Postal Code</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white"
+                        className="bg-white disabled:opacity-100"
                         type="number"
                         placeholder="94105"
+                        disabled={isFormDisabled}
                         {...field}
                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
                       />
@@ -567,8 +681,14 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
          {/* Submit Button */}
          <div className="flex justify-center pt-4">
            <RippleButton
-             type="submit"
-            //  disabled={loading || !form.formState.isValid}
+             type={ agentData?.onboarding_status === 'in_progress' ? "submit" : "button"}
+             onClick={() => {
+              if (agentData?.onboarding_status != 'in_progress') {
+                // take to next slide just
+                onSubmitSuccess();
+              }
+             }}
+             disabled={loading}
            >
              {loading && (
                <div className='flex items-center gap-[2px] mr-2'>
@@ -577,7 +697,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                  <div className='h-1 w-1 rounded-full bg-gray-200 animate-bounce'></div>
                </div>
              )}
-             {loading ? "Saving..." : "Continue to Next Step"}
+             {loading ? "Saving..." : "Next"}
            </RippleButton>
          </div>
       </form>

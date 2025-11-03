@@ -37,7 +37,7 @@ PhoneInput.displayName = "PhoneInput";
 const InputComponent = React.forwardRef(
   ({ className, errorStyle, ...props }, ref) => (
     <Input
-      className={cn("rounded-l-none border-0 border-l bg-white", errorStyle)}
+      className={cn("rounded-l-none border-0 border-l bg-white disabled:opacity-100", errorStyle)}
       {...props}
       placeholder="20323343499"
       ref={ref}
@@ -60,7 +60,7 @@ const CountrySelect = ({
       value={value}
       onValueChange={(selectedValue) => onChange(selectedValue)}
     >
-      <SelectTrigger className="w-[55px] gap-[2px] h-9 border-none rounded-r-none bg-white pl-2 pr-1">
+      <SelectTrigger className="w-[55px] gap-[2px] h-9 border-none disabled:opacity-100 rounded-r-none bg-white pl-2 pr-1">
         <SelectValue>
           <FlagComponent country={value} countryName={value} />
         </SelectValue>

@@ -4,7 +4,7 @@ import axios from 'axios'
 
 const checkResetPasswordTokenValidity = async (token) => {
   try {
-    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/check-reset-password-token-validity`, {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/check-reset-password-token-validity`, {
       token: token
     })
     return res?.data?.data
@@ -19,17 +19,15 @@ const page = async ({ searchParams }) => {
 
   const token = searchParams?.token;
 
-  // if (!token) {
-  //   return <div>Invalid token</div>
-  // }
+  if (!token) {
+    return <div>Invalid token</div>
+  }
 
-  const agent = await checkResetPasswordTokenValidity(token)
-
-
+  const user = await checkResetPasswordTokenValidity(token)
 
   return (
     <>
-      <ResetPassword token={token} agent={agent} />
+      <ResetPassword token={token} user={user} />
     </>
   )
 }

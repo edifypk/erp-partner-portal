@@ -8,6 +8,7 @@ export default function Page() {
 
   const { user } = useAuth()
 
+
   return (
     <Onboarding />
     // <div className='h-full p-6 overflow-y-auto'>

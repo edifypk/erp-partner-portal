@@ -63,7 +63,7 @@ const imogis = [
 
 
 
-export default function ResetPassword({ token, agent }) {
+export default function ResetPassword({ token, user }) {
 
     const router = useRouter()
     const [loginError, setLoginError] = useState(null);
@@ -79,7 +79,7 @@ export default function ResetPassword({ token, agent }) {
 
     const [formData, setFormData] = useState({
         token: token,
-        email: agent?.email,
+        email: user?.email,
         password: "",
         confirmPassword: ""
     })
@@ -165,7 +165,7 @@ export default function ResetPassword({ token, agent }) {
 
             setImogi(imogis.find(imogi => imogi.name === "thinkingFace").url);
 
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/account/reset-password`, formData, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/users/reset-password`, formData, {
                 withCredentials: true
             });
 
@@ -203,7 +203,7 @@ export default function ResetPassword({ token, agent }) {
 
 
 
-                    {agent ? <form onSubmit={resetPasswordHandler} className="min-w-[270px]">
+                    {user ? <form onSubmit={resetPasswordHandler} className="min-w-[270px]">
                         <div className="bg-white mx-auto mb-4 rounded-full w-12 h-12 p-2">
                             <img src={imogi} alt="" />
                         </div>
@@ -216,7 +216,7 @@ export default function ResetPassword({ token, agent }) {
 
                             <input
                                 ref={emailRef}
-                                value={agent?.email}
+                                value={user?.email}
                                 disabled={true}
                                 type="email"
                                 required
