@@ -41,10 +41,8 @@ export async function middleware(request) {
     }
   }
 
-  if (pathname === '/login' && user) {
-    if (user) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
+  if (pathname === '/login' && user && user?.user_type === 'sub_agent') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 }
 

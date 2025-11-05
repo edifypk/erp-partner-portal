@@ -30,7 +30,13 @@ const AuthContextProvider = ({ children }) => {
       }
 
       const userData = res?.data?.data;
-      setUser(userData);
+
+      if(userData?.user_type == 'sub_agent'){
+        setUser(userData);
+      }else{
+        router.push('/login');
+        return null;
+      }
 
       return userData;
     } catch (error) {
