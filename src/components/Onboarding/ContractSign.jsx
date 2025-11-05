@@ -11,9 +11,11 @@ const ContractSign = () => {
     const [showPreview, setShowPreview] = useState(false);
     const [onboardingStatus, setOnboardingStatus] = useState('in_progress');
     const [loading, setLoading] = useState(true);
+    const [contractUrl, setContractUrl] = useState(null);
+    const [initiatingSign, setInitiatingSign] = useState(false);
     const { user } = useAuth();
 
-    // Fetch onboarding status
+    // Fetch onboarding status and contract
     useEffect(() => {
         const fetchOnboardingStatus = async () => {
             if (!user?.subagent_team_member?.agent?.id) return;
@@ -37,6 +39,37 @@ const ContractSign = () => {
         fetchOnboardingStatus();
     }, [user]);
 
+    // Fetch contract attachment when status is pending_contract
+    useEffect(() => {
+        const fetchContractAttachment = async () => {
+            if (onboardingStatus === 'pending_contract') {
+                try {
+                    // No need to pass attachment ID - it will be fetched dynamically from template
+                    const response = await axios.get(
+                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/contract-attachment`,
+                        { withCredentials: true }
+                    );
+                    
+                    if (response.data.status === 'success') {
+                        const attachment = response.data.data;
+                        
+                        // Create a data URL from base64 content
+                        if (attachment.datas) {
+                            const dataUrl = `data:${attachment.mimeType};base64,${attachment.datas}`;
+                            setContractUrl(dataUrl);
+                        } else {
+                            console.error("No file data received from server");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching contract attachment:", error);
+                }
+            }
+        };
+
+        fetchContractAttachment();
+    }, [onboardingStatus]);
+
     const handleDownload = () => {
         const link = document.createElement('a');
         link.href = '/pdf/Document1.pdf';
@@ -44,6 +77,28 @@ const ContractSign = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleStartSigning = async () => {
+        try {
+            setInitiatingSign(true);
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/initiate-signing`,
+                {},
+                { withCredentials: true }
+            );
+
+            if (response.data.status === 'success') {
+                const signingUrl = response.data.data.signingUrl;
+                // Open Odoo signing page in a new tab
+                window.open(signingUrl, '_blank', 'noopener,noreferrer');
+                setInitiatingSign(false);
+            }
+        } catch (error) {
+            console.error("Error initiating signing process:", error);
+            alert("Failed to start signing process. Please try again.");
+            setInitiatingSign(false);
+        }
     };
 
     if (loading) {
@@ -148,26 +203,47 @@ const ContractSign = () => {
     }
 
     // Only show contract for approved status
-    if (onboardingStatus === 'approved') {
+    if (onboardingStatus === 'pending_contract') {
         return (
             <div className="space-y-6">
                 <div className="flex justify-end">
-                    <RippleButton size="sm" className="text-xs">
-                        <SignatureIcon />
-                        Start Signing Process
+                    <RippleButton 
+                        size="sm" 
+                        className="text-xs"
+                        onClick={handleStartSigning}
+                        disabled={initiatingSign}
+                    >
+                        {initiatingSign ? (
+                            <>
+                                <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                Redirecting to Signing Page...
+                            </>
+                        ) : (
+                            <>
+                                <SignatureIcon />
+                                Start Signing Process
+                            </>
+                        )}
                     </RippleButton>
                 </div>
 
                 <div>
-                    <div className="rounded-lg overflow-hidden">
-                        <iframe
-                            src="/pdf/Document1.pdf#toolbar=1&navpanes=0&scrollbar=1"
-                            width="100%"
-                            height="600px"
-                            className="border-0"
-                            title="Contract Document Preview"
-                        />
-                    </div>
+                    {contractUrl ? (
+                        <div className="rounded-lg overflow-hidden border border-gray-200">
+                            <iframe
+                                src={contractUrl}
+                                width="100%"
+                                height="600px"
+                                className="border-0"
+                                title="Contract Document Preview"
+                            />
+                        </div>
+                    ) : (
+                        <div className="flex justify-center items-center py-12 bg-gray-50 rounded-lg">
+                            <Loader2 className="animate-spin h-8 w-8 text-gray-600" />
+                            <span className="ml-3 text-gray-600">Loading contract document...</span>
+                        </div>
+                    )}
                 </div>
             </div>
         );

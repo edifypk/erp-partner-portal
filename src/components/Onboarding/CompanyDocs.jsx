@@ -178,8 +178,8 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
             return;
         }
 
-        // If status is approved, just proceed to next step
-        if (agentData?.onboarding_status === 'approved') {
+        // If status is pending_contract, just proceed to next step
+        if (agentData?.onboarding_status === 'pending_contract') {
             if (onSubmitSuccess) {
                 onSubmitSuccess(agentData);
             }
@@ -353,8 +353,8 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                     disabled={
                         submitForReviewMutation.isPending ||
                         agentData?.onboarding_status === 'under_review' ||
-                        (isFormDisabled && agentData?.onboarding_status !== 'approved') ||
-                        (agentData?.onboarding_status !== 'approved' && (!companyRegistrationFile || !idProofFile))
+                        (isFormDisabled && agentData?.onboarding_status !== 'pending_contract') ||
+                        (agentData?.onboarding_status !== 'pending_contract' && (!companyRegistrationFile || !idProofFile))
                     }
                 >
 
@@ -365,7 +365,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                         </>
                     ) : agentData?.onboarding_status === 'under_review' ? (
                         "Under Review"
-                    ) : agentData?.onboarding_status === 'approved' ? (
+                    ) : agentData?.onboarding_status === 'pending_contract' ? (
                         "Next"
                     ) : (
                         "Submit For Review"
@@ -376,7 +376,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                     <div className="text-center">
                     <h2 className="text-sm font-semibold tracking-tight mb-1">Your onboarding Process is Under Review.</h2>
                     <p className="text-xs text-gray-700 text-center max-w-md">
-                        You'll receive an email notification once approved and will then be able to access the contract.
+                        You'll receive an email notification once pending_contract and will then be able to access the contract.
                     </p>
                     </div>
                 )}
