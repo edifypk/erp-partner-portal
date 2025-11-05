@@ -8,43 +8,17 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 
 const ContractSign = () => {
-    const [showPreview, setShowPreview] = useState(false);
-    const [onboardingStatus, setOnboardingStatus] = useState('in_progress');
-    const [loading, setLoading] = useState(true);
     const [contractUrl, setContractUrl] = useState(null);
     const [initiatingSign, setInitiatingSign] = useState(false);
-    const { user } = useAuth();
+    const { agentData } = useAuth();
 
-    // Fetch onboarding status and contract
+    const onboardingStatus = agentData?.onboarding_status || 'in_progress';
+
+    // Fetch contract attachment ONCE when status becomes pending_contract or approved
     useEffect(() => {
-        const fetchOnboardingStatus = async () => {
-            if (!user?.subagent_team_member?.agent?.id) return;
-
-            try {
-                setLoading(true);
-                const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
-                    { withCredentials: true }
-                );
-
-                const agentData = response.data.data;
-                setOnboardingStatus(agentData.onboarding_status || 'in_progress');
-            } catch (error) {
-                console.error("Error fetching onboarding status:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOnboardingStatus();
-    }, [user]);
-
-    // Fetch contract attachment when status is pending_contract
-    useEffect(() => {
-        const fetchContractAttachment = async () => {
-            if (onboardingStatus === 'pending_contract') {
+        if (!contractUrl && (onboardingStatus === 'pending_contract' || onboardingStatus === 'approved')) {
+            const fetchContractAttachment = async () => {
                 try {
-                    // No need to pass attachment ID - it will be fetched dynamically from template
                     const response = await axios.get(
                         `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/contract-attachment`,
                         { withCredentials: true }
@@ -53,31 +27,19 @@ const ContractSign = () => {
                     if (response.data.status === 'success') {
                         const attachment = response.data.data;
                         
-                        // Create a data URL from base64 content
                         if (attachment.datas) {
                             const dataUrl = `data:${attachment.mimeType};base64,${attachment.datas}`;
                             setContractUrl(dataUrl);
-                        } else {
-                            console.error("No file data received from server");
                         }
                     }
                 } catch (error) {
                     console.error("Error fetching contract attachment:", error);
                 }
-            }
-        };
+            };
 
-        fetchContractAttachment();
-    }, [onboardingStatus]);
-
-    const handleDownload = () => {
-        const link = document.createElement('a');
-        link.href = '/pdf/Document1.pdf';
-        link.download = 'Contract_Document.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+            fetchContractAttachment();
+        }
+    }, [onboardingStatus, contractUrl]);
 
     const handleStartSigning = async () => {
         try {
@@ -90,7 +52,6 @@ const ContractSign = () => {
 
             if (response.data.status === 'success') {
                 const signingUrl = response.data.data.signingUrl;
-                // Open Odoo signing page in a new tab
                 window.open(signingUrl, '_blank', 'noopener,noreferrer');
                 setInitiatingSign(false);
             }
@@ -101,11 +62,11 @@ const ContractSign = () => {
         }
     };
 
-    if (loading) {
+    if (!agentData) {
         return (
             <div className="flex justify-center items-center py-8">
                 <Loader2 className="animate-spin h-6 w-6 text-gray-600" />
-                <span className="ml-2 text-gray-600">Loading contract...</span>
+                <span className="ml-2 text-gray-600">Loading...</span>
             </div>
         );
     }
@@ -171,7 +132,6 @@ const ContractSign = () => {
         );
     }
 
-    // Block access for in_progress status
     if (onboardingStatus === 'in_progress') {
         return (
             <div className="space-y-6 max-w-2xl mx-auto pt-6">
@@ -202,30 +162,44 @@ const ContractSign = () => {
         );
     }
 
-    // Only show contract for approved status
-    if (onboardingStatus === 'pending_contract') {
+    // Show contract for pending_contract or approved status
+    if (onboardingStatus === 'pending_contract' || onboardingStatus === 'approved') {
         return (
             <div className="space-y-6">
-                <div className="flex justify-end">
-                    <RippleButton 
-                        size="sm" 
-                        className="text-xs"
-                        onClick={handleStartSigning}
-                        disabled={initiatingSign}
-                    >
-                        {initiatingSign ? (
-                            <>
-                                <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                                Redirecting to Signing Page...
-                            </>
-                        ) : (
-                            <>
-                                <SignatureIcon />
-                                Start Signing Process
-                            </>
-                        )}
-                    </RippleButton>
-                </div>
+                {onboardingStatus === 'approved' && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div className="flex items-center">
+                            <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                            <div>
+                                <h3 className="font-semibold text-green-900">Contract Signed Successfully!</h3>
+                                <p className="text-sm text-green-700">Your partnership has been approved. Welcome aboard!</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {onboardingStatus === 'pending_contract' && (
+                    <div className="flex justify-end">
+                        <RippleButton 
+                            size="sm" 
+                            className="text-xs"
+                            onClick={handleStartSigning}
+                            disabled={initiatingSign}
+                        >
+                            {initiatingSign ? (
+                                <>
+                                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                    Redirecting to Signing Page...
+                                </>
+                            ) : (
+                                <>
+                                    <SignatureIcon />
+                                    Start Signing Process
+                                </>
+                            )}
+                        </RippleButton>
+                    </div>
+                )}
 
                 <div>
                     {contractUrl ? (

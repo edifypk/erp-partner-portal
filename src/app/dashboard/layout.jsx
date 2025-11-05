@@ -1,4 +1,6 @@
+"use client"
 import DashbaordNavbar from "@/components/nav/DashbaordNavbar"
+import PreLoader from "@/components/PreLoader"
 import AppSidebar from "@/components/Sidebar/Sidebar"
 import {
     Breadcrumb,
@@ -14,8 +16,10 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/context/AuthContextProvider"
 
 const Layout = ({ children }) => {
+    const { user,isLoading } = useAuth()
     return (
         <SidebarProvider className="h-screen overflow-hidden">
             <AppSidebar className="border" />
@@ -28,6 +32,9 @@ const Layout = ({ children }) => {
                 <div className="flex-1 overflow-hidden">
                     {children}
                 </div>
+
+
+                {isLoading && <PreLoader />}
 
             </SidebarInset>
         </SidebarProvider>
