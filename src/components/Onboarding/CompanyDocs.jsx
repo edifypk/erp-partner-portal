@@ -20,23 +20,23 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
 
     // React Query for fetching sub-agent data
     const { data: agentData, isLoading, error } = useQuery({
-        queryKey: ['subAgent', user?.subagent_team_member?.agent?.agent_id],
+        queryKey: ['subAgent', user?.subagent_team_member?.agent?.id],
         queryFn: async () => {
-            if (!user?.subagent_team_member?.agent?.agent_id) return null;
+            if (!user?.subagent_team_member?.agent?.id) return null;
             const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
                 { withCredentials: true }
             );
             return response.data.data;
         },
-        enabled: !!user?.subagent_team_member?.agent?.agent_id,
+        enabled: !!user?.subagent_team_member?.agent?.id,
     });
 
     // Mutation for updating documents
     const updateDocumentsMutation = useMutation({
         mutationFn: async ({ company_registration_file_id, id_proof_file_id }) => {
             const response = await axios.put(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}/documents`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
                 {
                     company_registration_file_id,
                     id_proof_file_id,
@@ -46,7 +46,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
             return response.data.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['subAgent', user?.subagent_team_member?.agent?.agent_id]);
+            queryClient.invalidateQueries(['subAgent', user?.subagent_team_member?.agent?.id]);
             toast.success("Document saved successfully!");
         },
         onError: (error) => {
@@ -59,16 +59,18 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
     const submitForReviewMutation = useMutation({
         mutationFn: async () => {
             const response = await axios.put(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}/documents`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}/documents`,
                 {
-                    onboarding_status: 'pending_review',
+                    company_registration_file_id: companyRegistrationFile?.id,
+                    id_proof_file_id: idProofFile?.id,
+                    onboarding_status: 'under_review',
                 },
                 { withCredentials: true }
             );
             return response.data.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['subAgent', user?.subagent_team_member?.agent?.agent_id]);
+            queryClient.invalidateQueries(['subAgent', user?.subagent_team_member?.agent?.id]);
             toast.success("Submitted for review successfully!");
             // Don't proceed to next step - user needs to wait for approval
         },
@@ -171,7 +173,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
     };
 
     const handleSubmitForReview = async () => {
-        if (!user?.subagent_team_member?.agent?.agent_id) {
+        if (!user?.subagent_team_member?.agent?.id) {
             toast.error("User not authenticated");
             return;
         }
@@ -196,7 +198,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
         }
 
         // Check if already under review
-        if (agentData?.onboarding_status === 'pending_review') {
+        if (agentData?.onboarding_status === 'under_review') {
             toast.info("Your application is already under review");
             return;
         }
@@ -246,7 +248,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-xs font-medium text-primary tracking-tight">{companyRegistrationFile.name}</div>
-                                    <div className="text-xs text-primary/60">{agentData?.onboarding_status == "pending_review" ? "Submitted for review" : "Uploaded successfully"}</div>
+                                    <div className="text-xs text-primary/60">{agentData?.onboarding_status == "under_review" ? "Submitted for review" : "Uploaded successfully"}</div>
                                 </div>
                                 {companyRegistrationFile.path && (
                                     <Button
@@ -265,7 +267,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                         <FilesUploadWidget
                             multipleFiles={false}
                             onUploadSuccess={handleCompanyRegistrationUpload}
-                            path={`sub-agents/${user?.subagent_team_member?.agent?.agent_id}/company-registration`}
+                            path={`sub-agents/${user?.subagent_team_member?.agent?.id}/company-registration`}
                             isModal={false}
                             disabled={isFormDisabled}
                         >
@@ -305,7 +307,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-xs font-medium text-primary tracking-tight">{idProofFile.name}</div>
-                                    <div className="text-xs text-primary/60">{agentData?.onboarding_status == "pending_review" ? "Submitted for review" : "Uploaded successfully"}</div>
+                                    <div className="text-xs text-primary/60">{agentData?.onboarding_status == "under_review" ? "Submitted for review" : "Uploaded successfully"}</div>
                                 </div>
                                 {idProofFile.path && (
                                     <Button
@@ -324,7 +326,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                         <FilesUploadWidget
                             multipleFiles={false}
                             onUploadSuccess={handleIdProofUpload}
-                            path={`sub-agents/${user?.subagent_team_member?.agent?.agent_id}/id-proof`}
+                            path={`sub-agents/${user?.subagent_team_member?.agent?.id}/id-proof`}
                             isModal={false}
                             disabled={isFormDisabled}
                         >
@@ -343,14 +345,14 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
 
             {/* Submit Button */}
             <div className="flex flex-col items-center pt-4 space-y-2">
-                {agentData?.onboarding_status == "pending_review" && <img className="w-20 h-20" src="/images/no-data.gif" alt="" />}
+                {agentData?.onboarding_status == "under_review" && <img className="w-20 h-20" src="/images/no-data.gif" alt="" />}
 
-                {agentData?.onboarding_status != "pending_review" && <RippleButton
+                {agentData?.onboarding_status != "under_review" && <RippleButton
                     type="button"
                     onClick={handleSubmitForReview}
                     disabled={
                         submitForReviewMutation.isPending ||
-                        agentData?.onboarding_status === 'pending_review' ||
+                        agentData?.onboarding_status === 'under_review' ||
                         (isFormDisabled && agentData?.onboarding_status !== 'approved') ||
                         (agentData?.onboarding_status !== 'approved' && (!companyRegistrationFile || !idProofFile))
                     }
@@ -361,7 +363,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                             <Loader2 className="animate-spin h-4 w-4 mr-2" />
                             Submitting...
                         </>
-                    ) : agentData?.onboarding_status === 'pending_review' ? (
+                    ) : agentData?.onboarding_status === 'under_review' ? (
                         "Under Review"
                     ) : agentData?.onboarding_status === 'approved' ? (
                         "Next"
@@ -370,7 +372,7 @@ const CompanyDocs = ({ onSubmitSuccess }) => {
                     )}
                 </RippleButton>}
 
-                {agentData?.onboarding_status === 'pending_review' && (
+                {agentData?.onboarding_status === 'under_review' && (
                     <div className="text-center">
                     <h2 className="text-sm font-semibold tracking-tight mb-1">Your onboarding Process is Under Review.</h2>
                     <p className="text-xs text-gray-700 text-center max-w-md">

@@ -62,14 +62,14 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
   const { data: agentData } = useQuery({
     queryKey: ['subAgent', user?.subagent_team_member?.agent?.agent_id],
     queryFn: async () => {
-      if (!user?.subagent_team_member?.agent?.agent_id) return null;
+      if (!user?.subagent_team_member?.agent?.id) return null;
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
         { withCredentials: true }
       );
       return response.data.data;
     },
-    enabled: !!user?.subagent_team_member?.agent?.agent_id,
+    enabled: !!user?.subagent_team_member?.agent?.id,
   });
 
   // API functions
@@ -77,7 +77,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
     try {
       setIsLoadingAgent(true);
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${agentId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${agentId}`,
         { withCredentials: true }
       );
       return response.data.data;
@@ -89,10 +89,10 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
     }
   };
 
-  const updateSubAgentData = async (agentId, data) => {
+  const updateSubAgentData = async (id, data) => {
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${agentId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${id}`,
         data,
         { withCredentials: true }
       );
@@ -146,7 +146,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
   // Load sub agent data and countries on component mount
   useEffect(() => {
     const loadData = async () => {
-      // Fetch countries
+      // Fetch countries with ISO codes
       try {
         const response = await axios.get(
           "https://countriesnow.space/api/v0.1/countries/flag/images"
@@ -162,9 +162,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
       }
 
       // Fetch sub agent data if user is logged in
-      if (user?.subagent_team_member?.agent?.agent_id) {
+      if (user?.subagent_team_member?.agent?.id) {
         // console.log("Fetching data for agent_id:", user.subagent_team_member.agent.agent_id);
-        const agentData = await fetchSubAgentData(user.subagent_team_member.agent.agent_id);
+        const agentData = await fetchSubAgentData(user.subagent_team_member.agent.id);
         // console.log("Fetched agent data:", agentData);
         if (agentData) {
           // Update form with fetched data
@@ -290,22 +290,8 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
     setLoading(true);
 
     try {
-      if (!user?.subagent_team_member?.agent?.agent_id) {
+      if (!user?.subagent_team_member?.agent?.id) {
         toast.error("User not authenticated");
-        return;
-      }
-
-      // If status is approved, just proceed to next step
-      if (agentData?.onboarding_status === 'approved') {
-        if (onSubmitSuccess) {
-          onSubmitSuccess(data);
-        }
-        return;
-      }
-
-      // Check if status allows editing
-      if (agentData?.onboarding_status && agentData.onboarding_status !== 'in_progress') {
-        toast.info("Your application is under review. Changes are not allowed at this time.");
         return;
       }
 
@@ -313,8 +299,18 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
       const hasChanged = hasFormDataChanged(data);
       
       if (hasChanged) {
-        // Update sub agent data only if there are changes
-        const result = await updateSubAgentData(user.subagent_team_member.agent.agent_id, data);
+        // Find the country ISO2 code from the selected country
+        const selectedCountry = countries.find(c => c.name === data.country);
+        const country_iso2 = selectedCountry?.iso2;
+
+        // Prepare data with country_iso2 for Odoo update
+        const updatePayload = {
+          ...data,
+          country_iso2: country_iso2
+        };
+
+        // Update sub agent data
+        const result = await updateSubAgentData(agentData?.id, updatePayload);
         
         // Update original data with the new data
         setOriginalData(data);
@@ -326,8 +322,6 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
         }
       } else {
         // No changes detected, just proceed to next step
-        toast.success("No changes detected. Proceeding to next step.");
-        
         if (onSubmitSuccess) {
           onSubmitSuccess(data);
         }
@@ -362,8 +356,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
 
 
 
-  // Check if form should be disabled
-  const isFormDisabled = agentData?.onboarding_status && agentData.onboarding_status !== 'in_progress';
+  // Check if form should be disabled - allow editing for 'in_progress' and 'approved' statuses
+  const isFormDisabled = agentData?.onboarding_status && 
+    !['in_progress', 'approved'].includes(agentData.onboarding_status);
 
   return (
     <Form {...form}>
@@ -438,7 +433,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                     className="bg-white disabled:opacity-100"
                     type="email"
                     placeholder="contact@yourcompany.com"
-                    disabled={isFormDisabled}
+                    disabled={true}
                     {...field}
                   />
                 </FormControl>
@@ -681,13 +676,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
          {/* Submit Button */}
          <div className="flex justify-center pt-4">
            <RippleButton
-             type={ agentData?.onboarding_status === 'in_progress' ? "submit" : "button"}
-             onClick={() => {
-              if (agentData?.onboarding_status != 'in_progress') {
-                // take to next slide just
-                onSubmitSuccess();
-              }
-             }}
+             type="submit"
              disabled={loading}
            >
              {loading && (

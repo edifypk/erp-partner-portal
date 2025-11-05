@@ -60,9 +60,9 @@ export function NavMain({
                     <RippleButton className="w-full p-0 shadow-none" variant="ghost" rippleClassName="bg-primary">
 
 
-                      <div tooltip={item.title} className={`cursor-pointer w-full gap-2 flex items-center px-3 py-5 ${isActive ? 'bg-primary/10 hover:bg-primary/5 shadow-[0px_0px_5px_#0002]' : 'bg-transparent'}`}>
+                      <div tooltip={item.title} className={`cursor-pointer w-full gap-2 flex items-center py-5 ${isActive ? 'bg-primary/10 hover:bg-primary/5 shadow-[0px_0px_5px_#0002]' : 'bg-transparent'} ${open ? 'px-3' : 'px-[7px]'}`}>
 
-                        <div style={{ "--ionicon-stroke-width": 25 }} className={`pt-1 ${isActive ? 'text-primary' : 'text-gray-400'} ${open ? 'text-lg' : 'text-base'}`}>
+                        <div style={{ "--ionicon-stroke-width": 25 }} className={`pt-1 ${isActive ? 'text-primary' : 'text-gray-400'} ${open ? 'text-lg' : 'text-lg'}`}>
                           {item.icon && <ion-icon name={isActive ? item.iconSolid : item.iconSolid}></ion-icon>}
                         </div>
 

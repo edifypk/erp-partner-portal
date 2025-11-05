@@ -16,12 +16,12 @@ const ContractSign = () => {
     // Fetch onboarding status
     useEffect(() => {
         const fetchOnboardingStatus = async () => {
-            if (!user?.subagent_team_member?.agent?.agent_id) return;
+            if (!user?.subagent_team_member?.agent?.id) return;
 
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
                     { withCredentials: true }
                 );
 
@@ -56,7 +56,7 @@ const ContractSign = () => {
     }
 
     // Show different UI based on onboarding status
-    if (onboardingStatus === 'pending_review') {
+    if (onboardingStatus === 'under_review') {
         return (
             <div className="space-y-6 max-w-2xl mx-auto pt-6">
                 <div className="text-center mb-8">

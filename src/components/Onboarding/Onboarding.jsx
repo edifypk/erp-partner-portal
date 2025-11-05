@@ -23,12 +23,12 @@ const Onboarding = () => {
     // Fetch onboarding status
     useEffect(() => {
         const fetchOnboardingStatus = async () => {
-            if (!user?.subagent_team_member?.agent?.agent_id) return;
+            if (!user?.subagent_team_member?.agent?.id) return;
 
             try {
                 setLoadingStatus(true);
                 const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
                     { withCredentials: true }
                 );
 
@@ -66,10 +66,10 @@ const Onboarding = () => {
     const handleFormSuccess = async (data) => {
         
         // Refresh onboarding status after form submission
-        if (user?.subagent_team_member?.agent?.agent_id) {
+        if (user?.subagent_team_member?.agent?.id) {
             try {
                 const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/agent-id/${user.subagent_team_member.agent.agent_id}`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/${user.subagent_team_member.agent.id}`,
                     { withCredentials: true }
                 );
                 const agentData = response.data.data;
@@ -113,9 +113,9 @@ const Onboarding = () => {
         const targetStep = stepIndex + 1;
         // console.log('handleStepClick called, targetStep:', targetStep, 'activeStep:', activeStep, 'onboardingStatus:', onboardingStatus)
         
-        // Block access to contract step (step 3) unless onboarding status is approved
-        if (targetStep === 3 && onboardingStatus !== 'approved') {
-            console.log('Cannot navigate to contract step - onboarding status not approved:', onboardingStatus)
+        // Block access to contract step (step 3) unless onboarding status is pending_contract or approved
+        if (targetStep === 3 && !['pending_contract', 'approved'].includes(onboardingStatus)) {
+            console.log('Cannot navigate to contract step - onboarding status not ready:', onboardingStatus)
             return;
         }
         
@@ -138,6 +138,9 @@ const Onboarding = () => {
             swiper.slideTo(activeStep - 1)
         }
     }, [activeStep, swiper])
+
+
+    console.log('onboardingStatus:', user)
 
 
     return (
@@ -174,7 +177,7 @@ const Onboarding = () => {
                                             className={`w-8 h-8 font-semibold text-sm flex justify-center items-center relative rounded-full border transition-all duration-200
                                         ${(() => {
                                             // Special handling for contract step (index 2)
-                                            if (index === 2 && onboardingStatus !== 'approved') {
+                                            if (index === 2 && !['pending_contract', 'approved'].includes(onboardingStatus)) {
                                                 return "border-gray-300 text-gray-400 cursor-not-allowed opacity-50";
                                             }
                                             
@@ -187,7 +190,7 @@ const Onboarding = () => {
                                                 return "border-gray-300 text-gray-400 cursor-not-allowed opacity-50";
                                             }
                                         })()}`}
-                                            disabled={activeStep + 1 < (index + 1) || (index === 2 && onboardingStatus !== 'approved')}
+                                            disabled={activeStep + 1 < (index + 1) || (index === 2 && !['pending_contract', 'approved'].includes(onboardingStatus))}
                                         >
                                             {index + 1}
 
