@@ -36,7 +36,7 @@ export async function middleware(request) {
 
   // Redirect to login if accessing dashboard without token or valid user
   if (pathname.startsWith('/dashboard')) {
-    if (!user) {
+    if (!user || (user?.user_type !== 'sub_agent')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
