@@ -12,6 +12,10 @@ import { toast } from 'sonner'
 import axios from 'axios'
 import { useAuth } from '@/context/AuthContextProvider'
 import { Loader2, UserPlus, Mail, Phone, Briefcase, Shield, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { RippleButton } from '@/components/ui/shadcn-io/ripple-button'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@radix-ui/themes'
+import { Call02Icon, Mail01Icon, SecurityCheckIcon, UserAdd02Icon } from 'hugeicons-react'
 
 // Zod validation schema
 const teamMemberSchema = z.object({
@@ -149,20 +153,20 @@ const TeamMembersPage = () => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Team Members</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage your team members and their access levels
-          </p>
-        </div>
+
+        <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
         {isUserAdmin && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+
+
             <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Team Member
+              <Button size="sm">
+                <UserAdd02Icon />
+                Add Member
               </Button>
             </DialogTrigger>
+
+
             <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle>Add New Team Member</DialogTitle>
@@ -321,7 +325,7 @@ const TeamMembersPage = () => {
       </div>
 
       {/* Team Members List */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-8">
         {teamMembers.length === 0 ? (
           <div className="text-center col-span-2 py-12 bg-white rounded-lg border border-gray-200">
             <UserPlus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -334,98 +338,107 @@ const TeamMembersPage = () => {
           teamMembers.map((member) => (
             <div
               key={member.id}
-              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              className="bg-linear-to-br group relative from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6"
             >
               <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg">
-                    {member.contact?.name?.charAt(0)?.toUpperCase() || 'U'}
-                  </div>
 
-                  {/* Member Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {member.contact?.name || 'Unknown'}
-                      </h3>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRoleBadgeColor(member.your_role)}`}>
-                        {member.your_role?.charAt(0).toUpperCase() + member.your_role?.slice(1)}
-                      </span>
-                      {member.user?.is_active && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
-                          Active
-                        </span>
-                      )}
-                    </div>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-10 h-10 border">
+                    <AvatarImage src={member.contact?.photo_url || '/images/placeholder/male.png'} />
+                    <AvatarFallback>{member.contact?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
+                  </Avatar>
 
-                    {member.job_title && (
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <Briefcase className="w-4 h-4 mr-2" />
-                        {member.job_title}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-1">
-                      {member.contact?.email && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Mail className="w-4 h-4 mr-2" />
-                          {member.contact.email}
-                        </div>
-                      )}
-                      {member.contact?.phone && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Phone className="w-4 h-4 mr-2" />
-                          {member.contact.phone}
-                        </div>
-                      )}
-                    </div>
-
-                    {member.user?.createdAt && (
-                      <div className="text-xs text-gray-500 mt-2">
-                        Joined {new Date(member.user.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </div>
-                    )}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      {member.contact?.name || 'Unknown'}
+                    </h3>
+                    <div className='text-xs font-medium text-gray-600'>{member.job_title}</div>
                   </div>
                 </div>
 
-                {/* Actions */}
+                <div className="flex items-center gap-3">
+                  <Badge size="2" variant="soft" radius="full" color={getRoleBadgeColor(member.your_role)}>
+                    {member.your_role?.charAt(0).toUpperCase() + member.your_role?.slice(1)}
+                  </Badge>
+                  {member.user?.is_active && (
+                    <Badge size="2" variant="soft" radius="full" color="green">Active</Badge>
+                  )}
+                </div>
+
+              </div>
+
+              <div className='my-4'>
+
+                <div className="flex flex-col gap-1">
+                  {member.contact?.email && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Mail01Icon size={18} />
+                      {member.contact.email}
+                    </div>
+                  )}
+                  {member.contact?.phone && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Call02Icon size={18} />
+                      {member.contact.phone}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+
+              {member.user?.createdAt && (
+                <div className="text-xs text-gray-500 mt-2">
+                  Joined {new Date(member.user.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </div>
+              )}
+
+
+              {/* Actions */}
+              <div className='group-hover:opacity-100 opacity-0 transition-opacity duration-200 absolute bottom-3 right-3'>
                 {isUserAdmin && member.your_role !== 'admin' && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleDeleteMember(member.id, member.contact?.name)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-600 w-8 h-8 p-0 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <img src="/images/actions/trash.svg" alt="" />
                   </Button>
                 )}
               </div>
+
+
             </div>
           ))
         )}
       </div>
 
-      {/* Info Card */}
-      {teamMembers.length > 0 && (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <Shield className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div>
-              <h4 className="text-sm font-medium text-blue-900 mb-1">Team Member Roles</h4>
-              <ul className="text-xs text-blue-700 space-y-1">
-                <li><strong>Admin:</strong> Full access to all features and settings</li>
-                <li><strong>Staff:</strong> Can manage applications and students</li>
-                <li><strong>Finance:</strong> Access to financial reports and invoices</li>
-              </ul>
+
+      <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
+        {/* Info Card */}
+        {teamMembers.length > 0 && (
+          <div className="bg-linear-to-br tracking-tight from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6 pl-5">
+            <div className="flex items-start gap-3">
+              <SecurityCheckIcon className='text-primary' size={24} />
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Team Member Roles</h4>
+                <ul className="text-xs text-primary space-y-1">
+                  <li><strong className='font-semibold'>Admin:</strong> Full access to all features and settings</li>
+                  <li><strong className='font-semibold'>Staff:</strong> Can manage applications and students</li>
+                  <li><strong className='font-semibold'>Finance:</strong> Access to financial reports and invoices</li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+
     </div>
   )
 }

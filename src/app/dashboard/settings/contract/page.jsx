@@ -4,14 +4,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, FileText, Download, Eye, Clock, CheckCircle2, FileSignature } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import User from '@/components/User';
-import { Calendar03Icon } from 'hugeicons-react';
+import { Calendar03Icon, SignatureIcon } from 'hugeicons-react';
 import { formatDate } from '@/utils/functions';
+import { Badge } from '@radix-ui/themes';
 
 const ContractsPage = () => {
   const [contracts, setContracts] = useState([]);
@@ -42,11 +42,11 @@ const ContractsPage = () => {
 
   const getContractStatus = (contract) => {
     if (contract.signed_date) {
-      return { label: 'Signed', color: 'bg-green-100 text-green-800', icon: CheckCircle2 };
+      return { label: 'Signed', color: 'green', icon: SignatureIcon };
     } else if (contract.odoo_sign_request_id) {
-      return { label: 'Pending Signature', color: 'bg-yellow-100 text-yellow-800', icon: Clock };
+      return { label: 'Pending Signature', color: 'yellow', icon: Clock };
     } else {
-      return { label: 'Draft', color: 'bg-gray-100 text-gray-800', icon: FileText };
+      return { label: 'Draft', color: 'gray', icon: FileText };
     }
   };
 
@@ -98,144 +98,176 @@ const ContractsPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-12 w-64" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-32 w-full" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-lg font-semibold">Contracts</h1>
       </div>
 
-      {contracts.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <FileSignature className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Contracts Yet</h3>
-              <p className="text-muted-foreground max-w-sm">
-                You don't have any contracts yet. Contracts will appear here once they are created.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-2 gap-4">
-          {contracts.map((contract) => {
-            const status = getContractStatus(contract);
-            const StatusIcon = status.icon;
 
-            return (
-              <Card key={contract.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="flex items-center gap-2">
-                        {contract.title}
-                      </CardTitle>
+      {
+        (loading) ? (
+          <div className="grid xl:grid-cols-2 gap-4">
+            {Array.from({ length: 1 }).map((_, index) => (
+              <div key={index} className="bg-linear-to-br space-y-6 from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6">
+
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-7 w-48 rounded-md border" />
+                  <Skeleton className="h-7 w-24 border rounded-full" />
+                </div>
+
+                <div className="flex gap-4">
+                  <Skeleton className="h-8 w-24 border rounded-md" />
+                  <Skeleton className="h-8 w-24 border rounded-md" />
+                  <Skeleton className="h-8 w-24 border rounded-md" />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className='flex gap-2'>
+                    <Skeleton className="h-9 w-9 rounded-full border" />
+                    <div>
+                      <Skeleton className="h-4 w-20 rounded-md border mb-1" />
+                      <Skeleton className="h-3 w-28 rounded-md border" />
                     </div>
-                    <Badge className={status.color} variant="secondary">
-                      <StatusIcon className="h-3 w-3 mr-1" />
-                      {status.label}
-                    </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Contract Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-
-
-
-                    <div className='flex items-center gap-2'>
-                      <div>
-                        <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
-                      </div>
-                      <div>
-                        <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>Start Date</div>
-                        <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{formatDate(contract.start_date)}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">End Date</p>
-                        <p className="text-sm text-muted-foreground">
-                          {contract.end_date
-                            ? format(new Date(contract.end_date), 'PP')
-                            : 'Not set'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {contract.signed_date && (
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium">Signed Date</p>
-                          <p className="text-sm text-muted-foreground">
-                            {format(new Date(contract.signed_date), 'PP')}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                  <div>
+                    <Skeleton className="h-7 w-20 border rounded-md" />
                   </div>
+                </div>
 
-
-
-                  {/* Signed Contract File */}
-                  {contract.signed_contract_file && (
-                    <div className="">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDownload(
-                          contract.signed_contract_file.id,
-                          contract.signed_contract_file.name
-                        )}
-                        disabled={downloadingFile === contract.signed_contract_file.id}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        {downloadingFile === contract.signed_contract_file.id
-                          ? 'Downloading...'
-                          : 'Download'}
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Odoo Sign Request Info */}
-                  {contract.odoo_sign_request_id && !contract.signed_date && (
-                    <div className="pt-3 border-t">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          Waiting for signature. Check your email for the signing link.
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-
-                  {/* Signed By Information */}
-                  {contract.signed_by_team_member && (
-                    <div className="pt-3">
-                      <User user={{ ...contract.signed_by_team_member.user, job_title: "Contract Signatory" }} />
-                    </div>
-                  )}
+              </div>
+            ))}
+          </div>
+        ) :
+          (
+            contracts.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <FileSignature className="h-16 w-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Contracts Yet</h3>
+                    <p className="text-muted-foreground max-w-sm">
+                      You don't have any contracts yet. Contracts will appear here once they are created.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
-            );
-          })}
-        </div>
-      )}
+            ) : (
+              <div className="grid xl:grid-cols-2 gap-4">
+                {contracts.map((contract) => {
+                  const status = getContractStatus(contract);
+                  const StatusIcon = status.icon;
+
+                  return (
+                    <div key={contract.id} className="bg-linear-to-br space-y-6 from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6">
+
+
+
+                      <div className="flex items-center justify-between">
+
+                        <h2 className="flex items-center gap-2 font-semibold tracking-tight">
+                          {contract.title}
+                        </h2>
+
+                        <Badge color={status.color} radius='full' style={{ gap: 4, padding: '4px 10px' }} size="3" variant="soft">
+                          <StatusIcon size={18} />
+                          {status.label}
+                        </Badge>
+
+                      </div>
+
+
+
+
+                      {/* Contract Details */}
+                      <div className="flex gap-8">
+
+                        <div className='flex items-center gap-2'>
+                          <div>
+                            <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
+                          </div>
+                          <div>
+                            <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>Start Date</div>
+                            <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{contract.start_date ? formatDate(contract.start_date) : 'Not set'}</div>
+                          </div>
+                        </div>
+
+                        <div className='flex items-center gap-2'>
+                          <div>
+                            <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
+                          </div>
+                          <div>
+                            <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>End Date</div>
+                            <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{contract.end_date ? formatDate(contract.end_date) : '--'}</div>
+                          </div>
+                        </div>
+
+                        {contract.signed_date && (
+                          <div className='flex items-center gap-2'>
+                            <div>
+                              <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
+                            </div>
+                            <div>
+                              <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>Signed Date</div>
+                              <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{formatDate(contract.signed_date)}</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Odoo Sign Request Info */}
+                      {contract.odoo_sign_request_id && !contract.signed_date && (
+                        <div className="pt-3 border-t">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                              Waiting for signature. Check your email for the signing link.
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center">
+                        <div>
+                          {contract.signed_by_team_member && (
+                            <User user={{ ...contract.signed_by_team_member.user, job_title: "Contract Signatory" }} />
+                          )}
+                        </div>
+
+                        <div>
+                          {contract.signed_contract_file && (
+                            <div className="">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDownload(
+                                  contract.signed_contract_file.id,
+                                  contract.signed_contract_file.name
+                                )}
+                                disabled={downloadingFile === contract.signed_contract_file.id}
+                              >
+                                {/* <Download /> */}
+                                {downloadingFile === contract.signed_contract_file.id
+                                  ? 'Downloading...'
+                                  : 'Download'}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+
+
+                    </div>
+
+
+
+                  );
+                })}
+              </div>
+            )
+          )
+      }
     </div>
   );
 };

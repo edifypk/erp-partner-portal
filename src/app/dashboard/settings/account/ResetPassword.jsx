@@ -9,6 +9,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import axios from 'axios'
+import { PasswordValidationIcon } from 'hugeicons-react'
 
 // Zod validation schema
 const passwordSchema = z.object({
@@ -69,46 +70,24 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="max-w-[500px]">
-      
-      <div className="mb-6">
-        {/* <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={40}
-          height={40}
-          viewBox="0 0 24 24"
-          fill="none"
-          role="img"
-        >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M10 3.25C8.067 3.25 6.5 4.817 6.5 6.75V9.25C6.5 9.80228 6.05228 10.25 5.5 10.25C4.94772 10.25 4.5 9.80228 4.5 9.25V6.75C4.5 3.71243 6.96243 1.25 10 1.25C13.0376 1.25 15.5 3.71243 15.5 6.75V9.25C15.5 9.80228 15.0523 10.25 14.5 10.25C13.9477 10.25 13.5 9.80228 13.5 9.25V6.75C13.5 4.817 11.933 3.25 10 3.25Z"
-            className='fill-primary'
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M18.8971 16.5177C18.6894 16.3145 18.5855 16.2129 18.5875 16.0841C18.5894 15.9552 18.6941 15.8588 18.9033 15.6662C18.9591 15.6148 19.0127 15.5662 19.0634 15.5209C19.2159 15.3845 19.2922 15.3163 19.4066 15.3162C19.5211 15.3161 19.5971 15.3839 19.7491 15.5194C19.9014 15.6551 20.0826 15.8245 20.2849 16.0224L21.0704 16.7907C21.4596 17.1714 22.0849 17.1657 22.4671 16.778C22.8492 16.3903 22.8435 15.7674 22.4543 15.3868L21.6687 14.6184C21.3328 14.2897 20.9746 13.9393 20.6782 13.7181C20.3467 13.4707 19.933 13.25 19.4056 13.25C18.8783 13.25 18.4646 13.4707 18.1331 13.7181C17.8367 13.9393 17.5181 14.251 17.1822 14.5797L15.2348 16.4843C15.0931 16.6228 15.0223 16.6921 14.939 16.7107C14.8556 16.7293 14.7479 16.6918 14.5325 16.6168C13.4054 16.2246 12.1002 16.4704 11.1965 17.3543C9.93451 18.5886 9.93451 20.5974 11.1965 21.8317C12.4484 23.0561 14.4708 23.0561 15.7227 21.8317C16.6225 20.9516 16.8807 19.6778 16.4973 18.5717C16.4231 18.3576 16.386 18.2505 16.4035 18.1687C16.4045 18.1641 16.4052 18.1609 16.4064 18.1563C16.4273 18.0753 16.4973 18.0069 16.6372 17.87C16.8277 17.6838 16.9229 17.5906 17.0401 17.5872C17.046 17.587 17.0518 17.587 17.0576 17.5872C17.1748 17.5906 17.27 17.6838 17.4605 17.87L17.9281 18.3274C18.3173 18.7081 18.9426 18.7024 19.3248 18.3147C19.7069 17.927 19.7012 17.3042 19.312 16.9235L18.8971 16.5177ZM12.5803 18.7582C13.0639 18.2853 13.8552 18.2853 14.3388 18.7582C14.8123 19.2213 14.8123 19.9646 14.3388 20.4277C13.8552 20.9007 13.0639 20.9007 12.5803 20.4277C12.1069 19.9646 12.1069 19.2213 12.5803 18.7582Z"
-            className='fill-primary'
-          />
-          <path
-            d="M10 8.25C8.40416 8.25 6.95364 8.28422 5.52522 8.34988C3.46716 8.4445 1.79609 10.0382 1.52452 12.0552C1.37636 13.1556 1.25 14.3118 1.25 15.5C1.25 16.6882 1.37636 17.8444 1.52452 18.9448C1.79609 20.9618 3.46716 22.5555 5.52522 22.6501C6.53013 22.6963 7.54598 22.7269 8.61567 22.741C9.17358 22.7484 9.45254 22.7521 9.54228 22.6106C9.63203 22.469 9.49344 22.1848 9.21627 21.6165C8.36725 19.8754 8.67771 17.7197 10.1476 16.282C11.2641 15.1899 12.79 14.7663 14.222 14.9973C14.3913 15.0247 14.476 15.0383 14.544 15.0167C14.612 14.9952 14.668 14.9404 14.7801 14.8308L16.1705 13.4709C16.4775 13.1704 16.8578 12.7981 17.236 12.5159C17.4298 12.3713 17.6687 12.2144 17.9522 12.0804C18.2072 11.9599 18.3347 11.8997 18.3799 11.7974C18.4251 11.6952 18.3919 11.587 18.3256 11.3706C17.8102 9.6879 16.2936 8.4335 14.4748 8.34989C13.0464 8.28422 11.5958 8.25 10 8.25Z"
-            className='fill-primary'
-          />
-          <path
-            d="M18.1606 20.0775C18.1628 20.0724 18.1597 20.0666 18.1542 20.0656C18.1493 20.0646 18.1445 20.0681 18.144 20.0732C18.143 20.0831 18.1566 20.0866 18.1606 20.0775Z"
-            className='fill-primary'
-          />
-        </svg> */}
-        <div className='mt-3'>
-          <h2 className='text-lg font-semibold text-gray-900'>Change Your Password</h2>
-          <p className='text-xs text-gray-500'>Update your password to keep your account secure.</p>
-        </div>
-      </div>
+    <div className="max-w-[500px] bg-linear-to-br from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6">
+
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+
+          <div className='flex items-center gap-2 justify-between'>
+            <div>
+              <h2 className='text-lg font-semibold text-gray-900'>Change Your Password</h2>
+              <p className='text-xs text-gray-500'>Update your password to keep your account secure.</p>
+            </div>
+            <div>
+              <PasswordValidationIcon strokeWidth={0.8} size={30} />
+            </div>
+          </div>
+
+
+
           {/* Current Password */}
           <FormField
             control={form.control}
@@ -123,13 +102,14 @@ const ResetPassword = () => {
                     <Input
                       type={showCurrentPassword ? 'text' : 'password'}
                       placeholder="Enter your current password"
-                      className="pr-10"
+                      error={form.formState.errors.currentPassword}
+                      className="pr-10 bg-white"
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showCurrentPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -139,7 +119,7 @@ const ResetPassword = () => {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                {/* <FormMessage /> */}
               </FormItem>
             )}
           />
@@ -158,13 +138,14 @@ const ResetPassword = () => {
                     <Input
                       type={showNewPassword ? 'text' : 'password'}
                       placeholder="Enter your new password"
-                      className="pr-10"
+                      className="pr-10 bg-white"
+                      error={form.formState.errors.newPassword}
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showNewPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -177,7 +158,7 @@ const ResetPassword = () => {
                 <FormDescription className="text-xs text-gray-500">
                   Must be at least 8 characters with uppercase, lowercase, and numbers.
                 </FormDescription>
-                <FormMessage />
+                {/* <FormMessage /> */}
               </FormItem>
             )}
           />
@@ -196,13 +177,14 @@ const ResetPassword = () => {
                     <Input
                       type={showConfirmPassword ? 'text' : 'password'}
                       placeholder="Confirm your new password"
-                      className="pr-10"
+                      className="pr-10 bg-white"
+                      error={form.formState.errors.confirmPassword}
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -212,17 +194,17 @@ const ResetPassword = () => {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                {/* <FormMessage /> */}
               </FormItem>
             )}
           />
 
           {/* Submit Button */}
-          <div className="flex pt-4">
-            <Button type="submit" disabled={isSubmitting}>
+          <div className="flex">
+            <Button type="submit" size="sm" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Updating Password...
                 </>
               ) : (
