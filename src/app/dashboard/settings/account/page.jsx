@@ -1,11 +1,13 @@
+"use client"
 import React from 'react'
+import ResetPassword from './ResetPassword'
 
-const page = () => {
+const AccountSettings = () => {
   return (
     <div>
-      Account Settings
+      <ResetPassword />
     </div>
   )
 }
 
-export default page
+export default AccountSettings

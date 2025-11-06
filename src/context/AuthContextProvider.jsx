@@ -99,11 +99,6 @@ const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     if (user?.subagent_team_member?.agent?.id) {
       fetchAgentData();
-
-      // Poll agent data every 5 seconds for real-time updates
-      const intervalId = setInterval(fetchAgentData, 5000);
-
-      return () => clearInterval(intervalId);
     }
   }, [user]);
 

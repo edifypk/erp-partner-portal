@@ -1,9 +1,9 @@
 import { Public_Sans } from "next/font/google";
-import "./globals.css";
 import CustomLayout from "@/components/CustomLayout";
 import Script from "next/script";
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
+import "./globals.css";
 
 const publicSans = Public_Sans({
   variable: "--font-public-sans",

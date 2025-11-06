@@ -59,38 +59,40 @@ const layout = ({ children }) => {
         },
     ]
 
-    useEffect(()=>{
+    useEffect(() => {
         setActiveTab(pathname)
-    },[pathname])
+    }, [pathname])
 
 
     return (
-        <div className='p-6'>
-            <div>
-                <div className='text-lg font-semibold flex items-center'>
-                    {/* <div className='w-6 h-6'><ion-icon name="settings-outline"></ion-icon></div> */}
-                    <div>Settings</div>
+        <div className='flex flex-col h-full overflow-hidden'>
+            <div className='pt-8 px-8'>
+                <div>
+                    <div className='text-lg font-semibold flex items-center'>
+                        {/* <div className='w-6 h-6'><ion-icon name="settings-outline"></ion-icon></div> */}
+                        <div>Settings</div>
+                    </div>
+                </div>
+                <div className='overflow-x-auto hideScrollBar'>
+                    <div ref={parentRef} className='flex items-center gap-4 pt-1'>
+                        {
+                            settingsTabs?.map((v, i) => {
+                                var isActive = (v.slug == activeTab)
+                                return (
+                                    <Link href={`${v.slug}`} id={v.slug} onClick={() => { setActiveTab(v.slug); updateLeft(v.slug) }} key={i} className={`py-2 px-2 flex cursor-pointer items-center font-medium text-sm gap-1`}>
+                                        <div className={`whitespace-nowrap ${isActive ? "text-primary" : "text-gray-400"}`}>{v.name}</div>
+                                    </Link>
+                                )
+                            })
+                        }
+                    </div>
+                    <div className='h-[2px] bg-gray-100 relative'>
+                        <div style={refLineStyle} className='absolute transition-all duration-300 bottom-0 bg-primary h-full'></div>
+                    </div>
                 </div>
             </div>
-            <div className='overflow-x-auto hideScrollBar mb-4'>
-                <div ref={parentRef} className='flex items-center gap-4 pt-1'>
-                    {
-                        settingsTabs?.map((v, i) => {
-                            var isActive = (v.slug == activeTab)
-                            return (
-                                <Link href={`${v.slug}`} id={v.slug} onClick={() => { setActiveTab(v.slug); updateLeft(v.slug) }} key={i} className={`py-2 px-2 flex cursor-pointer items-center font-medium text-sm gap-1`}>
-                                    <div className={`whitespace-nowrap ${isActive ? "text-primary" : "text-gray-400"}`}>{v.name}</div>
-                                </Link>
-                            )
-                        })
-                    }
-                </div>
-                <div className='h-[2px] bg-gray-100 relative'>
-                    <div style={refLineStyle} className='absolute transition-all duration-300 bottom-0 bg-primary h-full'></div>
-                </div>
-            </div>
-            <div className=''>
-            {children}
+            <div className='flex-1 overflow-auto p-8'>
+                {children}
             </div>
         </div>
     )
