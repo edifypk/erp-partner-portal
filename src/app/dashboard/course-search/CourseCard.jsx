@@ -29,7 +29,7 @@ const CourseCard = ({ course, keyword, student_id }) => {
 
 
     return (
-        <div className=' bg-white rounded-2xl shadow-md border border-gray-300 relative flex flex-col'>
+        <div className='dark:bg-neutral-900 rounded-2xl shadow-md border relative flex flex-col'>
 
             <div className='flex-1'>
                 <div className="absolute -top-2 right-4 text-[10px] flex gap-1 z-10">
@@ -60,37 +60,33 @@ const CourseCard = ({ course, keyword, student_id }) => {
                         className="w-full h-full object-cover"
                     />
 
-
-
                     <div className="absolute top-2 right-2 border border-black/20 bg-white/90 text-black font-semibold  backdrop-blur-md text-xs pr-2 pl-1 rounded-full flex items-center gap-1">
                         <Flag width={20} height={20} style={{ borderRadius: '50%' }} /> {course?.institute?.country?.short_name}
                     </div>
-
                 </div>
 
                 <div className='flex items-start gap-2 mt-2 -translate-y-7 px-2'>
                     <div>
-                        <div className='h-10 w-10 rounded-full border border-white shadow-md bg-white'>
+                        <div className='h-10 w-10 rounded-full border shadow-md bg-white'>
                             {
                                 course?.institute?.logo_url ?
                                     <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 1 }} src={course?.institute?.logo_url} alt={course?.institute?.name} className="w-full h-full object-cover" />
                                     :
                                     <div className='w-full h-full flex justify-center items-center'>
-                                        <div className='text-xs tracking-tight text-black/60 font-medium whitespace-nowrap'>{course?.institute?.name.slice(0, 2).toUpperCase()}</div>
+                                        <div className='text-xs tracking-tight font-medium whitespace-nowrap'>{course?.institute?.name.slice(0, 2).toUpperCase()}</div>
                                     </div>
                             }
 
                         </div>
                     </div>
                     <h2 className="text-xs tracking-tight font-medium line-clamp-2 pt-4">{highlightText(course?.institute?.name, keyword)}</h2>
-
                 </div>
 
                 <div className='px-4 -translate-y-4'>
 
 
 
-                    <div className='text-xs tracking-tight mb-1 text-black/60 font-medium whitespace-nowrap'>{course.program_level?.name}</div>
+                    <div className='text-xs tracking-tight mb-1 font-medium whitespace-nowrap'>{course.program_level?.name}</div>
 
 
                     <div className='font-semibold tracking-tight text-sm line-clamp-3'>
@@ -121,25 +117,25 @@ const CourseCard = ({ course, keyword, student_id }) => {
 
 
                         <div className="flex justify-between items-center">
-                            <div className='text-xs tracking-tight text-black/60 font-medium whitespace-nowrap'>Campus City</div>
-                            <div className='text-xs tracking-tight text-black font-medium whitespace-nowrap'>{course.institute?.city}</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>Campus City</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>{course.institute?.city}</div>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <div className='text-xs tracking-tight text-black/60 font-medium whitespace-nowrap'>Tuition (1st year)</div>
-                            <div className='text-xs tracking-tight text-black font-medium whitespace-nowrap'>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>Tuition (1st year)</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>
                                 {String(Math.round(course.tuition)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.currency_code}
                             </div>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <div className='text-xs tracking-tight text-black/60 font-medium whitespace-nowrap'>Application fee</div>
-                            <div className='text-xs tracking-tight text-black font-medium whitespace-nowrap'>{String(Math.round(course.application_fee)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.currency_code}</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>Application fee</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>{String(Math.round(course.application_fee)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.currency_code}</div>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <div className='text-xs tracking-tight text-black/60 font-medium whitespace-nowrap'>Duration</div>
-                            <div className='text-xs tracking-tight text-black font-medium whitespace-nowrap'>{course.min_length === course.max_length ? course.min_length : `${course.min_length} - ${course.max_length}`} months</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>Duration</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>{course.min_length === course.max_length ? course.min_length : `${course.min_length} - ${course.max_length}`} months</div>
                         </div>
 
                     </div>

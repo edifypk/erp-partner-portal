@@ -70,7 +70,7 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="max-w-[500px] bg-linear-to-br from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6">
+    <div className="bg-linear-to-br from-primary/5 to-transparent rounded-3xl border p-6">
 
 
       <Form {...form}>
@@ -78,11 +78,11 @@ const ResetPassword = () => {
 
           <div className='flex items-center gap-2 justify-between'>
             <div>
-              <h2 className='text-lg font-semibold text-gray-900'>Change Your Password</h2>
-              <p className='text-xs text-gray-500'>Update your password to keep your account secure.</p>
+              <h2 className='text-lg font-semibold'>Change Your Password</h2>
+              {/* <p className='text-xs text-gray-500'>Update your password to keep your account secure.</p> */}
             </div>
             <div>
-              <PasswordValidationIcon strokeWidth={0.8} size={30} />
+              {/* <PasswordValidationIcon strokeWidth={0.8} size={30} /> */}
             </div>
           </div>
 
@@ -155,9 +155,9 @@ const ResetPassword = () => {
                     </button>
                   </div>
                 </FormControl>
-                <FormDescription className="text-xs text-gray-500">
+                {form.formState.errors.newPassword && <FormDescription className="text-xs text-gray-500">
                   Must be at least 8 characters with uppercase, lowercase, and numbers.
-                </FormDescription>
+                </FormDescription>}
                 {/* <FormMessage /> */}
               </FormItem>
             )}

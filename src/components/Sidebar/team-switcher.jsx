@@ -18,12 +18,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/context/AuthContextProvider"
 
 export function TeamSwitcher({
   teams
 }) {
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
+
+  const { agentData } = useAuth()
 
   if (!activeTeam) {
     return null
@@ -38,15 +41,16 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <div
-                className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeTeam.logo className="size-4" />
+                className="flex border aspect-square size-8 dark:bg-white items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                {/* <activeTeam.logo className="size-4" /> */}
+                <img src={agentData?.logo ? agentData?.logo_url : "/images/eLogo.svg"} alt="" className="size-5" />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              {/* <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeTeam.name}
+                  {agentData?.company_name}
                 </span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
-              </div>
+                <span className="truncate text-xs">Partner Portal</span>
+              </div> */}
               {teams.length > 1 && <ChevronsUpDown className="ml-auto" />}
             </SidebarMenuButton>
           </DropdownMenuTrigger>

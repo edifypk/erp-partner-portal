@@ -109,7 +109,7 @@ const ContractsPage = () => {
         (loading) ? (
           <div className="grid xl:grid-cols-2 gap-4">
             {Array.from({ length: 1 }).map((_, index) => (
-              <div key={index} className="bg-linear-to-br space-y-6 from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6">
+              <div key={index} className="bg-linear-to-br space-y-6 from-primary/5 to-transparent rounded-3xl border p-6">
 
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-7 w-48 rounded-md border" />
@@ -159,7 +159,7 @@ const ContractsPage = () => {
                   const StatusIcon = status.icon;
 
                   return (
-                    <div key={contract.id} className="bg-linear-to-br space-y-6 from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6">
+                    <div key={contract.id} className="bg-linear-to-br space-y-6 from-primary/5 to-transparent rounded-3xl border p-6">
 
 
 
@@ -184,32 +184,32 @@ const ContractsPage = () => {
 
                         <div className='flex items-center gap-2'>
                           <div>
-                            <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
+                            <Calendar03Icon size={25} strokeWidth={1} className='text-neutral-500' />
                           </div>
                           <div>
-                            <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>Start Date</div>
-                            <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{contract.start_date ? formatDate(contract.start_date) : 'Not set'}</div>
+                            <div className='font-medium translate-y-[2px] text-[11px] text-neutral-500'>Start Date</div>
+                            <div className='text-neutral-600 translate-y-[-2px] text-xs font-semibold'>{contract.start_date ? formatDate(contract.start_date) : 'Not set'}</div>
                           </div>
                         </div>
 
                         <div className='flex items-center gap-2'>
                           <div>
-                            <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
+                            <Calendar03Icon size={25} strokeWidth={1} className='text-neutral-500' />
                           </div>
                           <div>
-                            <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>End Date</div>
-                            <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{contract.end_date ? formatDate(contract.end_date) : '--'}</div>
+                            <div className='font-medium translate-y-[2px] text-[11px] text-neutral-500'>End Date</div>
+                            <div className='text-neutral-600 translate-y-[-2px] text-xs font-semibold'>{contract.end_date ? formatDate(contract.end_date) : '--'}</div>
                           </div>
                         </div>
 
                         {contract.signed_date && (
                           <div className='flex items-center gap-2'>
                             <div>
-                              <Calendar03Icon size={25} strokeWidth={1} className='text-gray-500' />
+                              <Calendar03Icon size={25} strokeWidth={1} className='text-neutral-500' />
                             </div>
                             <div>
-                              <div className='font-medium translate-y-[2px] text-[11px] text-gray-500'>Signed Date</div>
-                              <div className='text-gray-600 translate-y-[-2px] text-xs font-semibold'>{formatDate(contract.signed_date)}</div>
+                              <div className='font-medium translate-y-[2px] text-[11px] text-neutral-500'>Signed Date</div>
+                              <div className='text-neutral-600 translate-y-[-2px] text-xs font-semibold'>{formatDate(contract.signed_date)}</div>
                             </div>
                           </div>
                         )}

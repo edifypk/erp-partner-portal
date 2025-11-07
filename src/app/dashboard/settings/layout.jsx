@@ -86,8 +86,8 @@ const layout = ({ children }) => {
                             })
                         }
                     </div>
-                    <div className='h-[2px] bg-gray-100 relative'>
-                        <div style={refLineStyle} className='absolute transition-all duration-300 bottom-0 bg-primary h-full'></div>
+                    <div className='h-[2px] bg-gray-100 dark:bg-neutral-900 relative'>
+                        <div style={refLineStyle} className='absolute transition-all duration-300 bottom-0 bg-primary/40 h-full'></div>
                     </div>
                 </div>
             </div>

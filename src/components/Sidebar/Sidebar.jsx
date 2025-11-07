@@ -75,7 +75,7 @@ const AppSidebar = ({
   ...props
 }) => {
   return (
-    <Sidebar collapsible="icon" {...props} className="border-gray-100">
+    <Sidebar collapsible="icon" {...props} className="border-gray-100 dark:border-neutral-900">
 
 
       <SidebarHeader>

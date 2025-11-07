@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
                 </div>
 
 
-                {isLoading && <PreLoader />}
+                {(isLoading) && <PreLoader />}
 
             </SidebarInset>
         </SidebarProvider>

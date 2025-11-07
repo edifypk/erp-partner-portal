@@ -55,14 +55,14 @@ const AccountManagerCard = () => {
 
 
     return (
-        <Card className="h-full bg-linear-to-bl from-primary/10 to-tranparent">
+        <Card className="bg-linear-to-br from-primary/5 to-transparent rounded-3xl border px-4 py-2 h-full">
             <CardHeader>
                 <CardTitle className='text-center'>Account Manager</CardTitle>
             </CardHeader>
 
             <CardContent>
-                <div className='flex flex-col gap-2 justify-center items-center text-center mt-4 mb-6'>
-                    <Avatar className="w-20 h-20 border bg-white">
+                <div className='flex flex-col gap-2 justify-center items-center text-center mb-6'>
+                    <Avatar className="w-20 h-20 border bg-white dark:bg-background mb-2">
                         <AvatarImage 
                             src={photoUrl} 
                             alt={managerContact.name}
@@ -71,22 +71,22 @@ const AccountManagerCard = () => {
                         <AvatarFallback>{getInitials(managerContact.name)}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <div className='font-semibold tracking-tight'>{managerContact.name}</div>
-                        <div className='text-xs tracking-tight text-gray-600'>{accountManager.job_title || 'Account Manager'}</div>
+                        <div className='font-semibold tracking-tight mb-1'>{managerContact.name}</div>
+                        <div className='text-xs font-medium tracking-tight text-neutral-400'>{accountManager.job_title || 'Account Manager'}</div>
                     </div>
                 </div>
 
                 <div className='flex justify-center items-center gap-4'>
                     {managerContact.phone && (
                         <a href={`tel:${managerContact.phone}`}>
-                            <div className='flex justify-center items-center text-primary w-12 h-12 hover:scale-125 transition-all duration-300 hover:bg-primary hover:text-white rounded-full bg-white border-primary/20 border'>
+                            <div className='flex justify-center items-center text-primary w-12 h-12 hover:scale-125 transition-all duration-300 hover:bg-primary dark:text-neutral-300 hover:text-white rounded-full bg-white dark:bg-background border-primary/20 border'>
                                 <Call02Icon />
                             </div>
                         </a>
                     )}
                     {managerContact.email && (
                         <a href={`mailto:${managerContact.email}`}>
-                            <div className='flex justify-center items-center text-primary w-12 h-12 hover:scale-125 transition-all duration-300 hover:bg-primary hover:text-white rounded-full bg-white border-primary/20 border'>
+                            <div className='flex justify-center items-center text-primary w-12 h-12 hover:scale-125 transition-all duration-300 hover:bg-primary dark:text-neutral-300 hover:text-white rounded-full bg-white dark:bg-background border-primary/20 border'>
                                 <Mail01Icon />
                             </div>
                         </a>

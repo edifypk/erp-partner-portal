@@ -32,6 +32,7 @@ function DialogClose({
 
 function DialogOverlay({
   className,
+  overlayStyle = "",
   ...props
 }) {
   return (
@@ -39,7 +40,8 @@ function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
-        className
+        className,
+        overlayStyle
       )}
       {...props} />
   );
@@ -48,12 +50,13 @@ function DialogOverlay({
 function DialogContent({
   className,
   children,
+  overlayStyle = "",
   showCloseButton = true,
   ...props
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
-      <DialogOverlay />
+      <DialogOverlay overlayStyle={overlayStyle} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(

@@ -24,10 +24,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from '@/context/AuthContextProvider'
 import Link from 'next/link'
+import { ThemeSwitcher } from '../ui/shadcn-io/theme-switcher'
+import { useTheme } from 'next-themes'
 
 const Profile = () => {
 
     const { user, isLoading } = useAuth()
+
+    const { theme, setTheme } = useTheme()
 
 
 
@@ -57,25 +61,36 @@ const Profile = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" />
+                <Avatar className="border">
+                    <AvatarImage src={user?.contact?.photo_url || "/images/placeholder/male.png"} />
                     <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
 
 
-            <DropdownMenuContent className="w-64" align="end">
+            <DropdownMenuContent className="w-72" align="end">
                 <DropdownMenuLabel>
-                    <div className='flex items-center gap-2'>
-                        <div>
-                            <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" />
-                                <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
+                    <div className='flex justify-between items-center'>
+
+                        <div className='flex items-center gap-2'>
+                            <div>
+                                <Avatar>
+                                    <AvatarImage src={user?.contact?.photo_url || "/images/placeholder/male.png"} />
+                                    <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
+                            </div>
+                            <div>
+                                <div className='text-sm translate-y-[2px] font-semibold'>{user?.contact?.name}</div>
+                                <div className='text-[11px] font-normal -translate-y-[2px] text-neutral-500'>{user?.contact?.email}</div>
+                            </div>
                         </div>
+
                         <div>
-                            <div className='text-sm translate-y-[2px] font-semibold'>{user?.contact?.name}</div>
-                            <div className='text-xs font-normal -translate-y-[2px] text-gray-500'>{user?.contact?.email}</div>
+                            <ThemeSwitcher
+                                value={theme}
+                                onChange={setTheme}
+                                className="scale-90"
+                            />
                         </div>
                     </div>
                 </DropdownMenuLabel>
@@ -103,6 +118,14 @@ const Profile = () => {
 
 
                 {/* <DropdownMenuItem disabled>API</DropdownMenuItem> */}
+
+
+
+                {/* <div className='flex justify-end'>
+               
+                </div> */}
+
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                     Log out

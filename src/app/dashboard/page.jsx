@@ -4,8 +4,11 @@ import NewsSlider from '@/components/NewsSlider';
 import Onboarding from '@/components/Onboarding/Onboarding';
 import { useAuth } from '@/context/AuthContextProvider'
 
+
 export default function Page() {
   const { user, agentData } = useAuth()
+
+
 
   // Show onboarding if user is not approved yet
   const showDashboard = agentData?.onboarding_status === 'approved';

@@ -1,9 +1,10 @@
+import AccountManagerCard from '@/components/AccountManagerCard'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      Account Manager Contact Info
+    <div className='grid md:grid-cols-2 xl:grid-cols-3'>
+      <AccountManagerCard />
     </div>
   )
 }

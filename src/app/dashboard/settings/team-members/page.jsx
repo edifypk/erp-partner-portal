@@ -154,7 +154,7 @@ const TeamMembersPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
 
-        <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
+        <h2 className="text-lg font-semibold">Team Members</h2>
         {isUserAdmin && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
 
@@ -338,7 +338,7 @@ const TeamMembersPage = () => {
           teamMembers.map((member) => (
             <div
               key={member.id}
-              className="bg-linear-to-br group relative from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6"
+              className="bg-linear-to-br group relative from-primary/5 to-transparent rounded-3xl border p-6"
             >
               <div className="flex items-start justify-between">
 
@@ -349,10 +349,10 @@ const TeamMembersPage = () => {
                   </Avatar>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-semibold ">
                       {member.contact?.name || 'Unknown'}
                     </h3>
-                    <div className='text-xs font-medium text-gray-600'>{member.job_title}</div>
+                    <div className='text-xs font-medium text-neutral-500'>{member.job_title}</div>
                   </div>
                 </div>
 
@@ -371,13 +371,13 @@ const TeamMembersPage = () => {
 
                 <div className="flex flex-col gap-1">
                   {member.contact?.email && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-neutral-500">
                       <Mail01Icon size={18} />
                       {member.contact.email}
                     </div>
                   )}
                   {member.contact?.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-neutral-500">
                       <Call02Icon size={18} />
                       {member.contact.phone}
                     </div>
@@ -388,7 +388,7 @@ const TeamMembersPage = () => {
 
 
               {member.user?.createdAt && (
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-neutral-600 mt-2">
                   Joined {new Date(member.user.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -422,17 +422,17 @@ const TeamMembersPage = () => {
       <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
         {/* Info Card */}
         {teamMembers.length > 0 && (
-          <div className="bg-linear-to-br tracking-tight from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6 pl-5">
+          <div className="bg-linear-to-br tracking-tight from-primary/5 to-transparent rounded-3xl border p-6">
             <div className="flex items-start gap-3">
-              <SecurityCheckIcon className='text-primary' size={24} />
-              <div>
+              <div className='flex-1'>
                 <h4 className="text-sm font-semibold mb-2">Team Member Roles</h4>
-                <ul className="text-xs text-primary space-y-1">
-                  <li><strong className='font-semibold'>Admin:</strong> Full access to all features and settings</li>
-                  <li><strong className='font-semibold'>Staff:</strong> Can manage applications and students</li>
-                  <li><strong className='font-semibold'>Finance:</strong> Access to financial reports and invoices</li>
+                <ul className="text-xs space-y-1 dark:text-neutral-400">
+                  <li><strong className='font-semibold dark:text-white'>Admin:</strong> Full access to all features and settings</li>
+                  <li><strong className='font-semibold dark:text-white'>Staff:</strong> Can manage applications and students</li>
+                  <li><strong className='font-semibold dark:text-white'>Finance:</strong> Access to financial reports and invoices</li>
                 </ul>
               </div>
+              <SecurityCheckIcon className='text-primary/50' size={24} />
             </div>
           </div>
         )}

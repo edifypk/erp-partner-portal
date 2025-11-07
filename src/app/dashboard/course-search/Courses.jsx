@@ -9,11 +9,11 @@ import CourseCardSkelton from './CourseCardSkelton'
 import FiltersModal from './FiltersModal'
 import { useSearchQuery } from '@/hooks/useSearchQuery'
 import { cn } from '@/lib/utils'
+import SearchQueryComponent from '@/components/SearchQueryComponent'
 
 
 const Courses = ({ coursesContainerStyle, student_id, className }) => {
     const { applySearchQueries, removeSearchQueries, CustomSearchParams } = useSearchQuery()
-    const [tempSearch, setTempSearch] = useState(CustomSearchParams.get('keyword') || "")
 
 
     const isClearing = useRef(false)
@@ -28,9 +28,6 @@ const Courses = ({ coursesContainerStyle, student_id, className }) => {
         level_id: CustomSearchParams.get('level_id') || "",
         tags: CustomSearchParams.get('tags') ? CustomSearchParams.get('tags').split(',') : [],
     })
-
-
-
 
     const getPrograms = async ({ pageParam = 1 }) => {
         try {
@@ -80,35 +77,6 @@ const Courses = ({ coursesContainerStyle, student_id, className }) => {
         }
     }, [inView]);
 
-
-
-
-
-
-    // Add debounce timer ref
-    const debounceTimer = useRef(null);
-
-    // Debounced keyword update
-    useEffect(() => {
-        if (isClearing.current) return; // Skip if we're clearing filters
-
-        if (debounceTimer.current) {
-            clearTimeout(debounceTimer.current);
-        }
-
-        debounceTimer.current = setTimeout(() => {
-            setFilters(prevFilter => ({ ...prevFilter, keyword: tempSearch }));
-            applySearchQueries([{ name: 'keyword', value: tempSearch }])
-        }, 500);
-
-        return () => {
-            if (debounceTimer.current) {
-                clearTimeout(debounceTimer.current);
-            }
-        };
-    }, [tempSearch]);
-
-
     const applyFilters = () => {
         // Use the new function to apply all filters at once
         const queries = [
@@ -147,12 +115,23 @@ const Courses = ({ coursesContainerStyle, student_id, className }) => {
     }
 
 
+    useEffect(()=>{
+        setFilters({
+            keyword: CustomSearchParams.get('keyword') || "",
+            institute_id: CustomSearchParams.get('institute_id') || "",
+            country_id: CustomSearchParams.get('country_id') || "",
+            level_id: CustomSearchParams.get('level_id') || "",
+            tags: CustomSearchParams.get('tags') ? CustomSearchParams.get('tags').split(',') : []
+        })
+    },[CustomSearchParams])
+
+
 
     return (
         <div className="h-full flex flex-col">
 
 
-            <div className={cn('px-6 pt-6 shadow-[0px_10px_10px_10px_rgba(255,255,255,100%)] z-10 ', className)}>
+            <div className={cn('px-6 pt-6 shadow-[0px_10px_10px_10px_rgba(255,255,255,100%)] shadow-background dark:shadow-[0px_10px_10px_10px] z-10 ', className)}>
 
                 <div className='flex items-center justify-between mb-2'>
                     <div className='font-semibold flex items-center gap-2'>
@@ -163,7 +142,7 @@ const Courses = ({ coursesContainerStyle, student_id, className }) => {
 
                 <div className='flex justify-between mb-2'>
                     <div>
-                        <Input onChange={(e) => setTempSearch(e.target.value)} placeholder='Search' value={tempSearch} />
+                        <SearchQueryComponent />
                     </div>
 
 
@@ -194,7 +173,7 @@ const Courses = ({ coursesContainerStyle, student_id, className }) => {
                                     {
                                         programs?.data?.pages?.map((page) => (
                                             page?.data?.map((v, index) => (
-                                                <CourseCard keyword={tempSearch} key={index} course={v} student_id={student_id} />
+                                                <CourseCard keyword={filters.keyword} key={index} course={v} student_id={student_id} />
                                             ))
                                         ))
                                     }

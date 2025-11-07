@@ -383,7 +383,7 @@ const BankDetailsPage = () => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Bank Accounts</h2>
+        <h2 className="text-lg font-semibold">Bank Accounts</h2>
         {canManageBankAccounts && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
@@ -432,7 +432,7 @@ const BankDetailsPage = () => {
             return (
               <div
                 key={account.id}
-                className="bg-linear-to-br group relative from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6"
+                className="bg-linear-to-br group relative from-primary/5 to-transparent rounded-3xl border p-6"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -440,10 +440,10 @@ const BankDetailsPage = () => {
                       <BankIcon size={24} className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900">
+                      <h3 className="text-sm font-semibold">
                         {account.bank_name}
                       </h3>
-                      <div className='text-xs font-medium text-gray-600'>{account.account_holder_name}</div>
+                      <div className='text-xs font-medium text-neutral-500 dark:text-neutral-400'>{account.account_holder_name}</div>
                     </div>
                   </div>
 
@@ -460,32 +460,32 @@ const BankDetailsPage = () => {
                   </div>
                 </div>
 
-                <div className='space-y-2'>
-                  <div className="text-xs text-gray-500">
+                <div className='space-y-2 text-neutral-500 dark:text-neutral-400'>
+                  <div className="text-xs">
                     <span className="font-medium">Account:</span> ••••{account.account_number.slice(-4)}
                   </div>
                   {account.routing_number && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs">
                       <span className="font-medium">Routing:</span> {account.routing_number}
                     </div>
                   )}
                   {account.swift_code && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs">
                       <span className="font-medium">SWIFT:</span> {account.swift_code}
                     </div>
                   )}
                   {account.iban && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs">
                       <span className="font-medium">IBAN:</span> {account.iban}
                     </div>
                   )}
                   {account.bank_address && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs">
                       <span className="font-medium">Address:</span> {account.bank_address}
                     </div>
                   )}
                   {account.notes && (
-                    <div className="text-xs text-gray-500 mt-2 pt-2 border-t">
+                    <div className="text-xs mt-2 pt-2 border-t">
                       <span className="font-medium">Notes:</span> {account.notes}
                     </div>
                   )}
@@ -531,17 +531,18 @@ const BankDetailsPage = () => {
       {/* Info Card */}
       {bankAccounts.length > 0 && (
         <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          <div className="bg-linear-to-br tracking-tight from-primary/5 to-transparent rounded-3xl border-primary/10 border p-6 pl-5">
+          <div className="bg-linear-to-br tracking-tight from-primary/5 to-transparent rounded-3xl border p-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className='text-primary' strokeWidth={1.5} size={24} />
-              <div>
+              <div className='flex-1'>
                 <h4 className="text-sm font-semibold mb-2">Bank Account Information</h4>
-                <ul className="text-xs text-primary space-y-1">
+                <ul className="text-xs space-y-1">
                   <li><strong className='font-semibold'>Primary:</strong> Used for all commission payments</li>
                   <li><strong className='font-semibold'>Verified:</strong> Account has been verified by admin</li>
                   <li><strong className='font-semibold'>Security:</strong> Account details are encrypted and secure</li>
                 </ul>
               </div>
+              <AlertCircle className='text-primary/50' strokeWidth={1.5} size={24} />
+
             </div>
           </div>
         </div>

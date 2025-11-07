@@ -37,7 +37,7 @@ const FiltersModal = ({ filters, setFilters, applyFilters, clearFilters }) => {
 
 
             <DialogTrigger asChild>
-                <div variant="outline" size="sm" className="font-normal bg-white relative text-gray-600 border border-blue-200 flex gap-2 text-sm px-2 py-[6px] shadow-sm cursor-pointer rounded-md items-center">
+                <div variant="outline" size="sm" className="font-normal bg-background relative dark:text-neutral-300 border flex gap-2 text-sm px-2 py-[6px] shadow-sm cursor-pointer rounded-md items-center">
                     <SlidersHorizontal size={15} className='text-gray-400' />
                     Filters
 
