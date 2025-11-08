@@ -7,6 +7,8 @@ import StudentCardSkelton from './StudentCardSkelton'
 import { useSearchQuery } from '@/hooks/useSearchQuery'
 import SearchQueryComponent from '@/components/SearchQueryComponent'
 import StudentCard from './StudentCard'
+import AddStudentDialog from './AddStudentDialog'
+import { Button } from '@/components/ui/button'
 
 
 const Students = () => {
@@ -29,7 +31,7 @@ const Students = () => {
         try {
 
 
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/crm/students`, {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/students`, {
                 params: {
                     ...filters,
                     limit: 12,
@@ -80,7 +82,7 @@ const Students = () => {
         <div className="h-full flex flex-col">
 
 
-            <div className='px-6 pt-6 shadow-[0px_10px_10px_10px_rgba(255,255,255,100%)] z-10'>
+            <div className='px-6 pt-6 shadow-background shadow-[0px_10px_10px_10px)] z-10'>
 
                 <div className='flex items-center justify-between mb-2'>
                     <div className='font-semibold'>Students</div>
@@ -95,6 +97,11 @@ const Students = () => {
 
                     <div>
                         {/* Filters Modal */}
+                        <AddStudentDialog>
+                            <Button size="sm">
+                                Add Student
+                            </Button>
+                        </AddStudentDialog>
                         {/* <FiltersModal filters={filters} setFilters={setFilters} applyFilters={applyFilters} clearFilters={clearFilters} /> */}
                     </div>
 

@@ -43,12 +43,19 @@ const signupSchema = z.object({
 });
 
 export default function SignupForm({ onSubmitSuccess }) {
+
+  
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+
+
+  const [loading, setLoading] = useState(false);
+
+
+
   const router = useRouter();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);

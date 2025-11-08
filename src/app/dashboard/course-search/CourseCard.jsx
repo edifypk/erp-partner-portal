@@ -29,7 +29,7 @@ const CourseCard = ({ course, keyword, student_id }) => {
 
 
     return (
-        <div className='dark:bg-neutral-900 rounded-2xl shadow-md border relative flex flex-col'>
+        <div className='dark:bg-neutral-900 rounded-2xl border relative flex flex-col'>
 
             <div className='flex-1'>
                 <div className="absolute -top-2 right-4 text-[10px] flex gap-1 z-10">
@@ -47,7 +47,7 @@ const CourseCard = ({ course, keyword, student_id }) => {
                 </div>
 
 
-                <div className="h-20 w-full relative rounded-t-[14px] overflow-hidden mb-4 bg-gray-50">
+                <div className="h-20 w-full relative rounded-t-[14px] overflow-hidden mb-4 bg-gray-50 dark:bg-neutral-900">
                     <motion.img
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -67,7 +67,7 @@ const CourseCard = ({ course, keyword, student_id }) => {
 
                 <div className='flex items-start gap-2 mt-2 -translate-y-7 px-2'>
                     <div>
-                        <div className='h-10 w-10 rounded-full border shadow-md bg-white'>
+                        <div className='h-10 w-10 rounded-full border shadow-md bg-white dark:bg-neutral-900'>
                             {
                                 course?.institute?.logo_url ?
                                     <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 1 }} src={course?.institute?.logo_url} alt={course?.institute?.name} className="w-full h-full object-cover" />

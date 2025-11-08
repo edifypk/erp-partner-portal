@@ -18,82 +18,12 @@ const StudentCard = ({ student, keyword }) => {
 
 
 
-    var firstInvoice = student?.invoices?.[0]?.invoice
-    var invoiceStatus = student?.invoices?.length > 0 ? firstInvoice?.status : "not_invoiced"
-    var isAllPaymentsConfirmed = firstInvoice?.payments?.every(payment => payment?.is_confirmed)
-
-    var paymentStatus = null
-
-    switch (invoiceStatus) {
-        case 'issued':
-            paymentStatus = (
-                <Badge radius='full' variant="soft" size="2" color="yellow">
-                    Invoiced
-                </Badge>
-            )
-            break;
-        case 'partial':
-            paymentStatus = (
-                <div className='relative h-[27px]'>
-                    <Badge radius='full' variant="soft" size="2" color="lime">
-                        Partial Paid
-                    </Badge>
-
-                    {!isAllPaymentsConfirmed &&
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger className='absolute -top-1 -right-2'>
-                                    <AlertCircleIcon fill="#FBB74F" className=' text-white' size={18} />
-                                </TooltipTrigger>
-                                <TooltipContent className="text-[10px] border-[0.5px] rounded-sm border-white/20 px-[6px] py-[2px]">
-                                    Pending Accounts Confirmation
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    }
-                </div>
-            )
-            break;
-        case 'paid':
-            paymentStatus = (
-                <div className='relative h-[27px]'>
-                    <Badge radius='full' variant="soft" size="2" color="grass">
-                        Paid
-                    </Badge>
-
-                    {!isAllPaymentsConfirmed &&
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger className='absolute -top-1 -right-2'>
-                                    <AlertCircleIcon fill="#FBB74F" className=' text-white' size={18} />
-                                </TooltipTrigger>
-                                <TooltipContent className="text-[10px] border-[0.5px] rounded-sm border-white/20 px-[6px] py-[2px]">
-                                    Pending Accounts Confirmation
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    }
-                </div>
-            )
-            break;
-        case 'not_invoiced':
-            paymentStatus = (
-                <Badge radius='full' variant="soft" size="2" color="red">
-                    Not Invoiced
-                </Badge>
-            )
-            break;
-    }
-
-
-
-
     return (
-        <div className='border bg-white rounded-2xl flex flex-col shadow-sm'>
-            <div className='p-4 relative flex-1'>
+        <Link href={`/dashboard/crm/students/${student?.contact?.contact_id}`} className='border bg-background rounded-2xl flex flex-col shadow-sm'>
+            <div className='p-6 relative flex-1'>
 
                 <div className='flex mb-4'>
-                    <Link href={`/dashboard/crm/students/${student?.contact?.contact_id}`} className='flex items-center gap-2 group'>
+                    <div className='flex items-center gap-2 group'>
                         <div>
                             <Avatar className='w-16 h-16 border'>
                                 <AvatarImage className='object-cover' src={student?.contact?.photo_url || `/images/placeholder/${student?.contact?.gender}.png`} />
@@ -101,17 +31,17 @@ const StudentCard = ({ student, keyword }) => {
                             </Avatar>
                         </div>
                         <div>
-                            <div className='text-gray-700 text-sm tracking-tight group-hover:text-blue-600 font-semibold  whitespace-nowrap'>{highlightText(student?.contact?.name, keyword)}</div>
-                            <div className='text-xs tracking-tight text-gray-500 group-hover:text-blue-600  whitespace-nowrap'>{highlightText(student?.contact?.contact_id, keyword)}</div>
+                            <div className='text-sm tracking-tight  font-semibold  whitespace-nowrap'>{highlightText(student?.contact?.name, keyword)}</div>
+                            <div className='text-xs tracking-tight text-gray-500  whitespace-nowrap'>{highlightText(student?.contact?.contact_id, keyword)}</div>
                         </div>
-                    </Link>
+                    </div>
                 </div>
 
 
                 <div>
                     <div className='flex gap-2 items-center tracking-tight mb-1'>
                         <div className='text-sm font-medium'>Applications</div>
-                        <div className='w-4 h-4 bg-gray-200 flex justify-center items-center rounded-sm text-[11px] font-medium'>{student?.applications?.length}</div>
+                        <div className='w-4 h-4 bg-gray-200 dark:text-black flex justify-center items-center rounded-sm text-[11px] font-medium'>{student?.applications?.length}</div>
                     </div>
 
 
@@ -128,7 +58,7 @@ const StudentCard = ({ student, keyword }) => {
                                         <div
                                             key={i}
                                             className={cn(
-                                                'text-xs tracking-tighter lg:tracking-tight whitespace-nowrap h-[18px] text-gray-600 transition-opacity duration-200',
+                                                'text-xs tracking-tighter lg:tracking-tight whitespace-nowrap h-[18px] text-neutral-600 dark:text-neutral-400 transition-opacity duration-200',
                                                 shouldDimLabel ? 'opacity-30' : 'opacity-100'
                                             )}
                                         >
@@ -205,11 +135,11 @@ const StudentCard = ({ student, keyword }) => {
                                         )
                                     })
                                     :
-                                    <div className='w-full h-full bg-white border text-center border-dashed rounded-lg flex justify-center items-center'>
+                                    <div className='w-full h-full bg-background border text-center border-dashed rounded-lg flex justify-center items-center'>
                                         <div>
                                             <img src="/images/no-data.svg" alt="no data" className='w-10 h-10 mx-auto' />
-                                            <div className='text-xs text-black font-medium tracking-tighter'>No applications Found</div>
-                                            <p className='text-[10px] text-gray-600 tracking-tighter'>Student not applied to any course yet</p>
+                                            <div className='text-xs font-medium tracking-tighter'>No applications Found</div>
+                                            <p className='text-[10px] tracking-tighter'>Student not applied to any course yet</p>
                                         </div>
                                     </div>
                             }
@@ -221,22 +151,11 @@ const StudentCard = ({ student, keyword }) => {
                     <div className='flex justify-between items-center'>
                         <div>
                             <div className=''>
-                                <SelectUser
-                                    filters={{ branch_id: student?.branch?.id, is_counsellor: true, limit: 50 }}
-                                    className="bg-transparent pl-0 hover:bg-transparent cursor-default"
-                                    id={student?.counsellor?.id}
-                                    editable={false}
-                                    pathname="/auth/users"
-                                    placeholder={"Unassigned"}
-                                    value={student?.counsellor?.id}
-                                    defaultData={student?.counsellor}
-                                    onChange={async (counsellorID) => await assignCounsellorHandler({ enquiryID: student?.id, prevCounsellorID: student?.counsellor?.id, newCounsellorID: counsellorID })}
-                                />
+                                user
                             </div>
                         </div>
                         <div className='flex items-center gap-2'>
-                            <div className='text-[10px] leading-[1.2] tracking-tighter'>Consultancy <br /> Fee Status</div>
-                            {paymentStatus}
+                            status
                         </div>
                     </div>
 
@@ -245,7 +164,7 @@ const StudentCard = ({ student, keyword }) => {
 
 
             </div>
-        </div>
+        </Link>
     )
 }
 

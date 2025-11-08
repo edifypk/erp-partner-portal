@@ -104,7 +104,7 @@ const CreateApplication = ({ course, student_id }) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <div className='flex items-center gap-1 active:scale-90 transition-all duration-300 cursor-pointer hover:bg-primary hover:text-white bg-primary text-white border rounded-full p-2'>
+                <div className='flex items-center gap-1 active:scale-90 transition-all duration-300 cursor-pointer hover:bg-primary hover:text-white bg-background text-primary border rounded-full p-2'>
                     <Task01Icon size={15} />
                     <div className='text-xs font-medium'>Create Application</div>
                 </div>
