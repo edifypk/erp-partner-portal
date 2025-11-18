@@ -3,9 +3,7 @@ import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { cn } from '@/lib/utils'
 
-const User = ({user}) => {
-
-
+const User = ({user, theme="dark"}) => {
 
     return (
         <div className='flex items-center gap-2'>
@@ -16,8 +14,8 @@ const User = ({user}) => {
                 </Avatar>
             </div>
             <div className='text-left'>
-                <div className={cn('text-xs dark:text-neutral-300 text-neutral-600 font-medium  whitespace-nowrap tracking-tight')}>{user?.contact?.name}</div>
-                <div className={cn('text-[10px] font-medium translate-y-[2px] leading-none dark:text-neutral-400 text-neutral-600  whitespace-nowrap')}>{user?.job_title}</div>
+                <div className={cn('text-xs dark:text-neutral-300 text-neutral-600 font-medium  whitespace-nowrap tracking-tight', theme === "light" ? "text-white" : "text-black")}>{user?.contact?.name}</div>
+                <div className={cn('text-[10px] font-medium translate-y-[2px] leading-none dark:text-neutral-400 text-neutral-600  whitespace-nowrap', theme === "light" ? "text-white" : "text-black")}>{user?.job_title || "--"}</div>
             </div>
         </div>
     )

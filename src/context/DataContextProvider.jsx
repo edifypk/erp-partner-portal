@@ -100,17 +100,17 @@ const DataContextProvider = ({ children }) => {
     };
 
 
-    const getLeadDocsFolders = (filters = {}) => {
+    const getContactDocsFolders = (filters = {}) => {
         const { data, error } = useQuery({
-            queryKey: ['lead-docs-folders', filters],
+            queryKey: ['contact-docs-folders', filters],
             queryFn: async () => {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/crm/lead-docs-folders`, {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sys/contact-docs-folders`, {
                     params: filters,
                 });
                 return response.data;
             },
             onError: (error) => {
-                console.error("Error fetching lead docs folders:", error);
+                console.error("Error fetching contact docs folders:", error);
             },
             staleTime: invalidateTime,
         });
@@ -391,7 +391,7 @@ const DataContextProvider = ({ children }) => {
             getBranches,
             getApplyLevels,
             getProgramLevels,
-            getLeadDocsFolders,
+            getContactDocsFolders,
             getCountries,
             getStatesOfCountry,
             getCitiesOfState,

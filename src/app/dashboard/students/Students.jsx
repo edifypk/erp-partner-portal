@@ -9,6 +9,7 @@ import SearchQueryComponent from '@/components/SearchQueryComponent'
 import StudentCard from './StudentCard'
 import AddStudentDialog from './AddStudentDialog'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/context/AuthContextProvider'
 
 
 const Students = () => {
@@ -23,6 +24,8 @@ const Students = () => {
     const [filters, setFilters] = useState({
         keyword: CustomSearchParams.get('keyword') || "",
     })
+
+    const { agentData } = useAuth()
 
 
 
@@ -97,28 +100,33 @@ const Students = () => {
 
                     <div>
                         {/* Filters Modal */}
-                        <AddStudentDialog>
-                            <Button size="sm">
-                                Add Student
-                            </Button>
-                        </AddStudentDialog>
+                        {
+                            agentData?.onboarding_status == 'approved' && (
+                                <AddStudentDialog>
+                                    <Button size="sm">
+                                        Add Student
+                                    </Button>
+                                </AddStudentDialog>
+                            )
+
+                        }
                         {/* <FiltersModal filters={filters} setFilters={setFilters} applyFilters={applyFilters} clearFilters={clearFilters} /> */}
                     </div>
 
                 </div>
 
-                <div className='flex justify-end pr-1'>
+                {agentData?.onboarding_status == 'approved' && <div className='flex justify-end pr-1'>
                     <div className='text-xs tracking-tight'>
                         Results : <span className='font-semibold'>{students?.isLoading ? "Loading..." : students?.data?.pages[0]?.metadata?.pagination?.count}</span>
                     </div>
-                </div>
+                </div>}
             </div>
 
             <div ref={scrollRef} className='flex-1 overflow-auto px-6 py-6'>
 
                 {
                     (students?.data?.pages[0]?.data?.length > 0 || students?.isLoading) ?
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {(students?.isLoading) ? (
                                 Array(3).fill(0).map((_, index) => (
                                     <StudentCardSkelton key={index} />

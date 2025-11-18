@@ -54,10 +54,23 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
+  // Track screen size for auto-collapse on medium screens
+  const [isLargeScreen, setIsLargeScreen] = React.useState(true)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)')
+    const onChange = () => {
+      setIsLargeScreen(window.innerWidth >= 1024)
+    }
+    mql.addEventListener("change", onChange)
+    setIsLargeScreen(window.innerWidth >= 1024)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
-  const open = openProp ?? _open
+  const open = openProp ?? (isLargeScreen ? _open : false)
   const setOpen = React.useCallback((value) => {
     const openState = typeof value === "function" ? value(open) : value
     if (setOpenProp) {

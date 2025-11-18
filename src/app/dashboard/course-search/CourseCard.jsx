@@ -6,9 +6,11 @@ import { Badge } from '@radix-ui/themes'
 import icons from '@/utils/icons'
 import CreateApplication from './create-application/CreateApplication'
 import flags from 'react-phone-number-input/flags'
+import { useAuth } from '@/context/AuthContextProvider'
 
 
 const CourseCard = ({ course, keyword, student_id }) => {
+
 
 
     const highlightText = (text, keyword) => {

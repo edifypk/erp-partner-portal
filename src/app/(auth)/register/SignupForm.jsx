@@ -27,6 +27,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { Tick04Icon } from "hugeicons-react";
 
 
 // Zod validation schema
@@ -438,15 +439,15 @@ export default function SignupForm({ onSubmitSuccess }) {
 
         </form>
         :
-        <div className="max-w-[500px] bg-white mx-auto w-full shadow-[0px_0px_20px_0px_rgba(0,0,0,0.1)] py-8 px-4 rounded-lg">
+        <div className="max-w-[500px]  mx-auto w-full py-8 px-4 rounded-lg">
 
-          <div className="flex justify-center items-center mb-6">
+          <div className="flex justify-center items-center mb-4">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.3, type: 'spring', stiffness: 100, damping: 10 }} className="w-40 h-40 bg-blue-600/5 rounded-full p-4">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.3, type: 'spring', stiffness: 100, damping: 10, delay: 0.4 }} className='bg-blue-600/10 rounded-full w-full h-full p-4'>
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.3, type: 'spring', stiffness: 100, damping: 10, delay: 0.8 }} className='bg-blue-600/10 rounded-full w-full h-full p-4'>
 
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.3, type: 'spring', stiffness: 100, damping: 10, delay: 1.2 }} className='bg-blue-600 text-white rounded-full w-full h-full flex justify-center items-center'>
-                    <ion-icon className="text-2xl" name="mail-open-outline"></ion-icon>
+                    <Tick04Icon size={28} />
                   </motion.div>
 
                 </motion.div>
@@ -454,12 +455,12 @@ export default function SignupForm({ onSubmitSuccess }) {
             </motion.div>
           </div>
 
-          <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.5, type: 'spring', stiffness: 100, damping: 10 }} className='text-center tracking-tight text-lg md:text-xl font-semibold mb-1'>Signed up Successfully!</motion.h2>
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 2, type: 'spring', stiffness: 100, damping: 10 }} className='text-center sm:max-w-[75%] mx-auto text-xs md:text-sm text-gray-500 mb-4'>Please check your provided email for login credentials.</motion.p>
+          <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.5, type: 'spring', stiffness: 100, damping: 10 }} className='text-center tracking-tight text-lg md:text-xl font-semibold mb-1'>Form Submitted Successfully!</motion.h2>
+          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 2, type: 'spring', stiffness: 100, damping: 10 }} className='text-center sm:max-w-[85%] mx-auto text-xs md:text-sm text-gray-500 mb-4'>We will review your application and get back to you soon. Please stay updated on your provided email.</motion.p>
 
-          <div className='flex justify-center'>
+          {/* <div className='flex justify-center'>
             <motion.button type="button" onClick={() => router.push("/login")} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 2.5, type: 'spring', stiffness: 100, damping: 10 }} className='bg-blue-600 cursor-pointer active:scale-95 transition-all duration-300 font-semibold text-white text-xs inline-block px-4 py-2 rounded-full'>Go to Login</motion.button>
-          </div>
+          </div> */}
 
         </div>
       }

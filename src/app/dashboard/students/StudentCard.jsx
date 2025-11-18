@@ -10,6 +10,7 @@ import { assignCounsellorHandler, highlightText } from '@/utils/functions'
 import { CheckIcon, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { applicationChecks } from '@/data'
+import User from '@/components/User'
 
 const StudentCard = ({ student, keyword }) => {
 
@@ -19,11 +20,11 @@ const StudentCard = ({ student, keyword }) => {
 
 
     return (
-        <Link href={`/dashboard/crm/students/${student?.contact?.contact_id}`} className='border bg-background rounded-2xl flex flex-col shadow-sm'>
-            <div className='p-6 relative flex-1'>
+        <div className='bg-linear-to-br from-primary/5 to-transparent rounded-3xl border p-6'>
+            <div className='relative'>
 
                 <div className='flex mb-4'>
-                    <div className='flex items-center gap-2 group'>
+                    <Link href={`/dashboard/students/${student?.contact?.contact_id}`} className='flex items-center gap-2 group'>
                         <div>
                             <Avatar className='w-16 h-16 border'>
                                 <AvatarImage className='object-cover' src={student?.contact?.photo_url || `/images/placeholder/${student?.contact?.gender}.png`} />
@@ -34,7 +35,7 @@ const StudentCard = ({ student, keyword }) => {
                             <div className='text-sm tracking-tight  font-semibold  whitespace-nowrap'>{highlightText(student?.contact?.name, keyword)}</div>
                             <div className='text-xs tracking-tight text-gray-500  whitespace-nowrap'>{highlightText(student?.contact?.contact_id, keyword)}</div>
                         </div>
-                    </div>
+                    </Link>
                 </div>
 
 
@@ -82,7 +83,7 @@ const StudentCard = ({ student, keyword }) => {
                                                 <Tooltip>
                                                     <TooltipTrigger>
                                                         <Link
-                                                            href={`/dashboard/crm/applications/${app?.application_id}`}
+                                                            href={`/dashboard/applications/${app?.application_id}`}
                                                             key={ai}
                                                             className={cn(
                                                                 'h-full bg-gray-100 block cursor-pointer rounded-full py-1 px-[2px] space-y-1 ring-4 ring-gray-100 transition-opacity duration-200',
@@ -135,11 +136,11 @@ const StudentCard = ({ student, keyword }) => {
                                         )
                                     })
                                     :
-                                    <div className='w-full h-full bg-background border text-center border-dashed rounded-lg flex justify-center items-center'>
+                                    <div className='w-full h-full bg-background dark:bg-neutral-900/50 border text-center border-dashed rounded-lg flex justify-center items-center'>
                                         <div>
                                             <img src="/images/no-data.svg" alt="no data" className='w-10 h-10 mx-auto' />
                                             <div className='text-xs font-medium tracking-tighter'>No applications Found</div>
-                                            <p className='text-[10px] tracking-tighter'>Student not applied to any course yet</p>
+                                            {/* <p className='text-[10px] tracking-tighter'>Student not applied to any course yet</p> */}
                                         </div>
                                     </div>
                             }
@@ -151,11 +152,11 @@ const StudentCard = ({ student, keyword }) => {
                     <div className='flex justify-between items-center'>
                         <div>
                             <div className=''>
-                                user
+                                <User theme="dark" user={student?.created_by?.subagent_team_member} />
                             </div>
                         </div>
                         <div className='flex items-center gap-2'>
-                            status
+                            {/* status */}
                         </div>
                     </div>
 
@@ -164,7 +165,7 @@ const StudentCard = ({ student, keyword }) => {
 
 
             </div>
-        </Link>
+        </div>
     )
 }
 

@@ -62,10 +62,24 @@ const data = {
       isActive: true
     },
     {
+      title: "Applications Requests",
+      url: "/dashboard/applications-requests",
+      icon: 'layers-outline',
+      iconSolid: 'layers',
+      isActive: true
+    },
+    {
       title: "Applications",
       url: "/dashboard/applications",
       icon: 'layers-outline',
-      iconSolid: 'layers',
+      iconSolid: 'paper-plane',
+      isActive: true
+    },
+    {
+      title: "Enrollments",
+      url: "/dashboard/enrollments",
+      icon: 'layers-outline',
+      iconSolid: 'trophy',
       isActive: true
     },
   ]

@@ -11,7 +11,6 @@ import React, { useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/context/AuthContext'
 import { Skeleton } from '@/components/ui/skeleton'
-import { CrownIcon } from 'hugeicons-react'
 
 
 const SelectStudent = ({ filters, value, onChange, placeholder, excludeItems, editable = true, className, nameClassName, jobTitleClassName, error }) => {
@@ -28,8 +27,8 @@ const SelectStudent = ({ filters, value, onChange, placeholder, excludeItems, ed
     })
 
 
-    const { data, isLoading } = useQuery({
-        queryKey: [params, open],
+    const { data,isLoading } = useQuery({
+        queryKey: [params,open],
         queryFn: async () => {
             try {
                 if (open) {
@@ -101,13 +100,13 @@ const SelectStudent = ({ filters, value, onChange, placeholder, excludeItems, ed
                                         <div className='flex items-center gap-2'>
                                             <div>
                                                 <Avatar online={onlineUsers?.includes(selectedItemData?.id)} className='w-7 h-7 border-0 rounded-full'>
-                                                    <AvatarImage className='object-cover' src={selectedItemData?.contact?.photo_url} />
-                                                    <AvatarFallback>{selectedItemData?.contact?.name?.charAt(0)}</AvatarFallback>
+                                                    <AvatarImage className='object-cover' src={selectedItemData?.lead?.photo ? `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}${selectedItemData?.lead?.photo}` : `/images/placeholder/male.png`} />
+                                                    <AvatarFallback>{selectedItemData?.lead?.full_name?.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                             </div>
                                             <div className='text-left'>
-                                                <div className={cn('text-gray-700 text-xs font-medium  whitespace-nowrap', nameClassName)}>{selectedItemData?.contact?.name}</div>
-                                                <div className={cn('text-[10px] leading-[1] text-gray-500  whitespace-nowrap', jobTitleClassName)}>{selectedItemData?.contact?.contact_id}</div>
+                                                <div className={cn('text-gray-700 text-xs font-medium  whitespace-nowrap', nameClassName)}>{selectedItemData?.lead?.full_name}</div>
+                                                <div className={cn('text-[10px] leading-[1] text-gray-500  whitespace-nowrap', jobTitleClassName)}>{selectedItemData?.student_id}</div>
                                             </div>
                                         </div>
                                     )
@@ -147,6 +146,7 @@ const SelectStudent = ({ filters, value, onChange, placeholder, excludeItems, ed
 
 
 
+
                 <PopoverContent align="start" className="w-full p-0">
                     <Command className="">
                         <CommandInput value={params.keyword} onValueChange={(value) => setParams({ ...params, keyword: value })} placeholder="Search..." />
@@ -155,11 +155,11 @@ const SelectStudent = ({ filters, value, onChange, placeholder, excludeItems, ed
                             <CommandGroup>
                                 {Array.isArray(data) && data?.map((item) => (
                                     <CommandItem
-                                        value={item.id}
+                                        value={item.name}
                                         key={item.id}
                                         className="flex"
                                         onSelect={async () => {
-                                            await onChange(item.id)
+                                            await onChange(item.student_id)
                                             setSelectedItemData(item)
                                             setOpen(false)
                                         }}
@@ -167,13 +167,13 @@ const SelectStudent = ({ filters, value, onChange, placeholder, excludeItems, ed
                                         <div className='flex items-center gap-2'>
                                             <div>
                                                 <Avatar online={onlineUsers?.includes(item?.id)} className='w-7 h-7 border'>
-                                                    <AvatarImage className='object-cover' src={item?.contact?.photo_url} />
+                                                    <AvatarImage className='object-cover' src={item?.lead?.photo ? `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}${item?.lead?.photo}` : `/images/placeholder/male.png`} />
                                                     <AvatarFallback>{item?.lead?.full_name?.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                             </div>
                                             <div>
-                                                <div className={cn('text-gray-700 text-xs font-medium  whitespace-nowrap')}>{item?.contact?.name}</div>
-                                                <div className={cn('text-[10px] leading-[1] text-gray-500  whitespace-nowrap')}>{item?.contact?.contact_id}</div>
+                                                <div className={cn('text-gray-700 text-xs font-medium  whitespace-nowrap')}>{item?.lead?.full_name}</div>
+                                                <div className={cn('text-[10px] leading-[1] text-gray-500  whitespace-nowrap')}>{item?.student_id}</div>
                                             </div>
                                         </div>
                                         <Check

@@ -116,7 +116,7 @@ const SelectStudent = ({ pathname, showStudentTag = false, filters, value, onCha
                                     (
                                         <div className='flex items-center gap-2'>
                                             <div>
-                                                <Avatar online={onlineUsers?.includes(selectedItemData?.id)} className='w-7 h-7 border-0 rounded-full'>
+                                                <Avatar className='w-7 h-7 border-0 rounded-full'>
                                                     <AvatarImage className='object-cover' src={selectedItemData?.contact?.photo_url} />
                                                     <AvatarFallback>{selectedItemData?.contact?.name?.charAt(0)}</AvatarFallback>
                                                 </Avatar>
@@ -163,6 +163,7 @@ const SelectStudent = ({ pathname, showStudentTag = false, filters, value, onCha
 
 
 
+
                 <PopoverContent align="start" className="w-full min-w-60 p-0">
                     <div className="border-b relative">
                         <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 shrink-0 opacity-50" />
@@ -200,7 +201,7 @@ const SelectStudent = ({ pathname, showStudentTag = false, filters, value, onCha
                             >
                                 <div className='flex items-center gap-2'>
                                     <div>
-                                        <Avatar online={onlineUsers?.includes(item?.id)} className='w-7 h-7 border'>
+                                        <Avatar className='w-7 h-7 border'>
                                             <AvatarImage className='object-cover' src={item?.contact?.photo_url} />
                                             <AvatarFallback>{item?.contact?.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
