@@ -7,6 +7,7 @@ export const applicationRequestsStatuses = [
         slug: "pending",
         color: "red"
     },
+    
     // {
     //     action:"Approve",
     //     name:"Approved",

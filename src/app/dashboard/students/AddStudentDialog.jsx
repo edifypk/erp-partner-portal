@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input'
 import { isValidPhoneNumber } from 'react-phone-number-input'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { UserIcon, Delete02Icon } from 'hugeicons-react'
+import { UserIcon, Delete02Icon, GraduationScrollIcon, LanguageSkillIcon, Alert02Icon, Album02Icon } from 'hugeicons-react'
+import { Camera01Icon } from 'hugeicons-react'
 import axios from 'axios'
 import { PhoneInput } from '@/components/ui/phone-input'
 import { Switch } from '@/components/ui/switch'
@@ -19,7 +20,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
-import {toast} from 'sonner'
+import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
+import AvatarPicker from '@/components/AvatarPicker'
+import { useData } from '@/context/DataContextProvider'
 
 const schema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -71,6 +75,9 @@ const schema = z.object({
 })
 
 const AddStudentDialog = ({ children }) => {
+    const queryClient = useQueryClient()
+    const { getProgramLevels, getEnglishTests } = useData()
+    const [open, setOpen] = useState(false)
 
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
@@ -81,6 +88,11 @@ const AddStudentDialog = ({ children }) => {
     const [hasEducationGaps, setHasEducationGaps] = useState(false);
     const [hasQualifications, setHasQualifications] = useState(false);
     const [hasEnglishTest, setHasEnglishTest] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState(null);
+
+    // Fetch education levels and English tests from API
+    const programLevels = getProgramLevels({ limit: 50 }) || [];
+    const englishTests = getEnglishTests() || [];
 
 
     const form = useForm({
@@ -248,9 +260,15 @@ const AddStudentDialog = ({ children }) => {
     const onSubmit = (data) => {
         var promise = new Promise(async (resolve, reject) => {
             try {
+                // Include photo_id if a photo was selected
+                const submitData = {
+                    ...data,
+                    ...(selectedPhoto?.id && { photo_id: selectedPhoto.id })
+                };
+
                 const response = await axios.post(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/sub-agents/students`,
-                    data,
+                    submitData,
                     {
                         withCredentials: true
                     }
@@ -265,7 +283,29 @@ const AddStudentDialog = ({ children }) => {
 
         toast.promise(promise, {
             loading: "Submitting...",
-            success: () => "Student submitted successfully",
+            success: () => {
+                // Close dialog, reset form, and refetch students
+                setOpen(false)
+                form.reset({
+                    name: '',
+                    dob: null,
+                    gender: '',
+                    email: '',
+                    phone: '',
+                    country: '',
+                    city: '',
+                    state: '',
+                    education_gaps: [],
+                    qualifications: [],
+                    english_tests: [],
+                })
+                setHasEducationGaps(false)
+                setHasQualifications(false)
+                setHasEnglishTest(false)
+                setSelectedPhoto(null)
+                queryClient.invalidateQueries({ queryKey: ['students'] })
+                return "Student submitted successfully"
+            },
             error: (error) => error.response?.data?.message || error.message,
         });
     }
@@ -273,12 +313,16 @@ const AddStudentDialog = ({ children }) => {
 
 
     return (
-        <Dialog onInteractOutside={e => {
-            const { originalEvent } = e.detail;
-            if ( originalEvent.target instanceof Element && originalEvent.target.closest('.group.toast') ) {
-                 e.preventDefault();
-            }
-         }}>
+        <Dialog
+            open={open}
+            onOpenChange={setOpen}
+            onInteractOutside={e => {
+                const { originalEvent } = e.detail;
+                if (originalEvent.target instanceof Element && originalEvent.target.closest('.group.toast')) {
+                    e.preventDefault();
+                }
+            }}
+        >
 
 
             <DialogTrigger asChild>
@@ -287,7 +331,7 @@ const AddStudentDialog = ({ children }) => {
 
 
 
-            <DialogContent className="max-h-[85vh] [&>button]:cursor-pointer [&>button]:text-2xl [&>button]:text-white bg-background overflow-hidden h-full min-h-[500px] sm:max-w-3xl p-0 rounded-3xl">
+            <DialogContent className="[&>button]:cursor-pointer [&>button]:text-2xl [&>button]:text-black bg-background overflow-hidden sm:max-w-3xl p-0 rounded-2xl">
 
 
                 <DialogHeader className="hidden">
@@ -296,25 +340,58 @@ const AddStudentDialog = ({ children }) => {
 
 
                 <Form {...form}>
-                    <form autoComplete='off' onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col h-full overflow-hidden p-1'>
+                    <form autoComplete='off' onSubmit={form.handleSubmit(onSubmit)} className='flex max-h-[85vh] flex-col overflow-hidden'>
 
 
-                        <div className='h-44 bg-background relative pb-10'>
-                            <div className='bg-linear-to-br overflow-hidden from-primary to-transparent h-full rounded-[20px]'>
-                                <img src="/images/stuBanner.png" className='h-full w-full object-cover' alt="" />
-                            </div>
 
-
-                            <div className='absolute bottom-2 left-0 w-full px-8'>
-                                <div className='w-20 flex justify-center text-neutral-500 items-center bg-neutral-900 h-20 border-3 border-background rounded-full'>
-                                    <UserIcon strokeWidth={0.8} size={35} />
-                                </div>
-                            </div>
+                        <div className='py-3 px-4 border-b border-dashed bg-gray-100 flex justify-between items-center'>
+                            <div className='font-semibold tracking-tight text-center pt-1'>Add Student</div>
                         </div>
 
-                        <div className='flex-1 overflow-y-auto p-4'>
 
-                            <div className='gap-4 grid grid-cols-3 mb-6'>
+
+
+
+
+                        <div className='flex-1 overflow-y-auto p-6 space-y-6'>
+
+                            <div className='relative flex justify-center items-center gap-10'>
+
+                                <div className='bg-white rounded-3xl flex justify-center items-center'>
+                                    <div className="w-20 aspect-square relative group border border-dashed rounded-full overflow-hidden bg-gray-100 dark:bg-neutral-900 flex justify-center items-center">
+                                        {selectedPhoto?.url ? (
+                                            <img
+                                                src={selectedPhoto.url}
+                                                alt="Profile"
+                                                className="w-full h-full object-cover rounded-full"
+                                            />
+                                        ) : (
+                                            <UserIcon  strokeWidth={0.8} size={35} className="text-neutral-500 fill-neutral-500" />
+                                        )}
+                                        <AvatarPicker
+                                            onSave={async (file, setIsSaved) => {
+                                                const photoUrl = file.url || (file.path ? `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}${file.path}` : null);
+                                                setSelectedPhoto({
+                                                    id: file.id,
+                                                    url: photoUrl
+                                                });
+                                                setIsSaved();
+                                            }}
+                                            path="uploads/lead-photos"
+                                        >
+                                            <div className="absolute inset-0 bg-black/0 hover:bg-black/60 hover:backdrop-blur-md transition-all duration-200 flex items-center justify-center group-hover:opacity-100 opacity-0 cursor-pointer rounded-full">
+                                                <Album02Icon className="w-8 h-8 text-white" />
+                                            </div>
+                                        </AvatarPicker>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div className='gap-4 grid grid-cols-3'>
+
+
+
                                 <FormField
                                     control={form.control}
                                     name="name"
@@ -364,8 +441,6 @@ const AddStudentDialog = ({ children }) => {
                                         </FormItem>
                                     )}
                                 />
-
-
 
 
                                 <FormField
@@ -448,7 +523,7 @@ const AddStudentDialog = ({ children }) => {
                                                 disabled={!form.watch("country") || loadingStates}
                                             >
                                                 <FormControl>
-                                                    <SelectTrigger className="w-full relative">
+                                                    <SelectTrigger className="w-full relative disabled:opacity-100">
                                                         <SelectValue
                                                             placeholder={
                                                                 loadingStates
@@ -490,7 +565,7 @@ const AddStudentDialog = ({ children }) => {
                                                 disabled={!form.watch("state") || loadingCities}
                                             >
                                                 <FormControl>
-                                                    <SelectTrigger className="w-full relative">
+                                                    <SelectTrigger className="w-full relative disabled:opacity-100">
                                                         <SelectValue
                                                             placeholder={
                                                                 loadingCities ? "Loading cities..." : "Select a city"
@@ -520,15 +595,13 @@ const AddStudentDialog = ({ children }) => {
                                 />
                             </div>
 
-
-
-
                             <div className='space-y-4'>
                                 {/* Education Gaps */}
-                                <div className='border p-4 rounded-xl bg-neutral-900'>
+                                <div className='border-[0.5px] p-3 border-dashed border-gray-300 rounded-xl dark:bg-neutral-900 bg-gray-50'>
                                     <div className="flex justify-between items-center">
-                                        <div>
-                                            <h3 className="text-sm">Education Gaps</h3>
+                                        <div className='flex items-center gap-[6px]'>
+                                            <Alert02Icon size={18} />
+                                            <h3 className="text-sm font-semibold">Education Gap</h3>
                                         </div>
 
                                         <Switch
@@ -538,19 +611,20 @@ const AddStudentDialog = ({ children }) => {
 
                                     </div>
                                     {hasEducationGaps && (
-                                        <div className='space-y-3 pt-4'>
+                                        <div className='space-y-4 pt-6 pb-4 px-4'>
                                             {gapFields.map((item, index) => (
-                                                <div key={item.id} className="border p-4 rounded-xl bg-background">
-                                                    <div className='flex justify-between items-center mb-3'>
-                                                        <div className='w-6 h-6 text-xs border rounded-full border-black flex justify-center items-center'>
-                                                            {index + 1}
-                                                        </div>
+                                                <div key={item.id} className="border p-4 rounded-xl bg-background relative">
+
+
+                                                    <div className='absolute -top-2 -right-2'>
                                                         {gapFields.length > 1 && (
-                                                            <Button size="icon" variant="outline" type="button" onClick={() => removeGap(index)}>
-                                                                <Delete02Icon size={14} />
+                                                            <Button size="icon" className="w-8 h-8 p-[2px] rounded-full cursor-pointer" variant="outline" type="button" onClick={() => removeGap(index)}>
+                                                                <img src="/images/actions/trash.svg" alt="" />
                                                             </Button>
                                                         )}
                                                     </div>
+
+
                                                     <div className="grid grid-cols-12 gap-3">
                                                         <FormField
                                                             control={form.control}
@@ -606,7 +680,7 @@ const AddStudentDialog = ({ children }) => {
                                             <Button
                                                 size="sm"
                                                 type="button"
-                                                variant="ghost"
+                                                variant="outline"
                                                 onClick={() => addMoreGap({ from_date: undefined, to_date: undefined, reason: "" })}
                                             >
                                                 Add More
@@ -616,10 +690,11 @@ const AddStudentDialog = ({ children }) => {
                                 </div>
 
                                 {/* Qualifications */}
-                                <div className='border p-4 rounded-xl bg-neutral-900'>
+                                <div className='border-[0.5px] p-3 border-dashed border-gray-300 rounded-xl dark:bg-neutral-900 bg-gray-50'>
                                     <div className="flex justify-between items-center">
-                                        <div>
-                                            <h3 className="text-sm">Previous Qualifications</h3>
+                                        <div className='flex items-center gap-[6px]'>
+                                            <GraduationScrollIcon size={18} className='' />
+                                            <h3 className="text-sm font-semibold">Educational History</h3>
                                         </div>
                                         <div>
                                             <Switch
@@ -629,19 +704,20 @@ const AddStudentDialog = ({ children }) => {
                                         </div>
                                     </div>
                                     {hasQualifications && (
-                                        <div className='space-y-3 pt-4'>
+                                        <div className='space-y-4 pt-6 pb-4 px-4'>
                                             {eduFields.map((item, index) => (
-                                                <div key={item.id} className="border p-4 rounded-xl bg-background">
-                                                    <div className='flex justify-between items-center mb-3'>
-                                                        <div className='w-6 h-6 text-xs border rounded-full border-black flex justify-center items-center'>
-                                                            {index + 1}
-                                                        </div>
+                                                <div key={item.id} className="border p-4 rounded-xl bg-background relative">
+
+
+                                                    <div className='absolute -top-2 -right-2'>
                                                         {eduFields.length > 1 && (
-                                                            <Button size="icon" variant="outline" type="button" onClick={() => removeEdu(index)}>
-                                                                <Delete02Icon size={14} />
+                                                            <Button size="icon" className="w-8 h-8 p-[2px] rounded-full cursor-pointer" variant="outline" type="button" onClick={() => removeEdu(index)}>
+                                                                <img src="/images/actions/trash.svg" alt="" />
                                                             </Button>
                                                         )}
                                                     </div>
+
+
                                                     <div className="grid grid-cols-12 gap-3">
                                                         <FormField
                                                             control={form.control}
@@ -649,18 +725,45 @@ const AddStudentDialog = ({ children }) => {
                                                             render={({ field }) => (
                                                                 <FormItem className="col-span-6">
                                                                     <FormLabel>Qualification Level</FormLabel>
-                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                    <Select onValueChange={field.onChange} value={field.value}>
                                                                         <FormControl>
-                                                                            <SelectTrigger>
+                                                                            <SelectTrigger className="w-full" error={form.formState.errors?.qualifications?.[index]?.edu_level_id}>
                                                                                 <SelectValue placeholder="Select Level" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
-                                                                        <SelectContent>
-                                                                            <SelectItem value="1">Matric</SelectItem>
-                                                                            <SelectItem value="2">Intermediate</SelectItem>
-                                                                            <SelectItem value="3">Bachelor</SelectItem>
-                                                                            <SelectItem value="4">Master</SelectItem>
-                                                                            <SelectItem value="5">PhD</SelectItem>
+                                                                        <SelectContent className="max-h-[300px] overflow-y-auto">
+                                                                            <div className='space-y-1 mb-3'>
+                                                                                <div className='text-xs font-medium px-2'>Postgraduate</div>
+                                                                                <div className='pl-2 ml-1'>
+                                                                                    {programLevels.filter(v => v.family === 'postgraduate').map((v) => (
+                                                                                        <SelectItem key={v.id} value={v.id.toString()}>{v.name}</SelectItem>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className='space-y-1 mb-3'>
+                                                                                <div className='text-xs font-medium px-2'>Undergraduate</div>
+                                                                                <div className='pl-2 ml-1'>
+                                                                                    {programLevels.filter(v => v.family === 'undergraduate').map((v) => (
+                                                                                        <SelectItem key={v.id} value={v.id.toString()}>{v.name}</SelectItem>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className='space-y-1 mb-3'>
+                                                                                <div className='text-xs font-medium px-2'>Secondary</div>
+                                                                                <div className='pl-2 ml-1'>
+                                                                                    {programLevels.filter(v => v.family === 'secondary').map((v) => (
+                                                                                        <SelectItem key={v.id} value={v.id.toString()}>{v.name}</SelectItem>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className='space-y-1'>
+                                                                                <div className='text-xs font-medium px-2'>Primary</div>
+                                                                                <div className='pl-2 ml-1'>
+                                                                                    {programLevels.filter(v => v.family === 'primary').map((v) => (
+                                                                                        <SelectItem key={v.id} value={v.id.toString()}>{v.name}</SelectItem>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
                                                                         </SelectContent>
                                                                     </Select>
                                                                     <FormMessage />
@@ -688,7 +791,7 @@ const AddStudentDialog = ({ children }) => {
                                                                     <FormLabel>Year</FormLabel>
                                                                     <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value?.toString()}>
                                                                         <FormControl>
-                                                                            <SelectTrigger>
+                                                                            <SelectTrigger className="w-full" error={form.formState.errors?.qualifications?.[index]?.year_of_completion}>
                                                                                 <SelectValue placeholder="Select Year" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
@@ -734,6 +837,7 @@ const AddStudentDialog = ({ children }) => {
                                             <Button
                                                 size="sm"
                                                 type="button"
+                                                variant="outline"
                                                 onClick={() => addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "" })}
                                             >
                                                 Add More
@@ -743,185 +847,198 @@ const AddStudentDialog = ({ children }) => {
                                 </div>
 
                                 {/* English Tests */}
-                                <div className='border p-4 rounded-xl bg-neutral-900'>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <h3 className="text-sm">English Tests</h3>
+                                <div className='border-[0.5px] p-3 border-dashed border-gray-300 rounded-xl dark:bg-neutral-900 bg-gray-50'>
+                                    <div className="flex justify-between items-center">
+                                        <div className='flex items-center gap-[6px]'>
+                                            <LanguageSkillIcon size={18} />
+                                            <h3 className="text-sm font-semibold">English Tests</h3>
+                                        </div>
+                                        <div>
+                                            <Switch
+                                                checked={hasEnglishTest}
+                                                onCheckedChange={setHasEnglishTest}
+                                            />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Switch
-                                            checked={hasEnglishTest}
-                                            onCheckedChange={setHasEnglishTest}
-                                        />
-                                    </div>
-                                </div>
-                                {hasEnglishTest && (
-                                    <div className='space-y-3 pt-4'>
-                                        {englishTestFields.map((item, index) => (
-                                            <div key={item.id} className="border p-4 rounded-xl bg-background">
-                                                <div className='flex justify-between items-center mb-3'>
-                                                    <div className='w-6 h-6 text-xs border rounded-full border-black flex justify-center items-center'>
-                                                        {index + 1}
+                                    {hasEnglishTest && (
+                                        <div className='space-y-4 pt-6 pb-4 px-4'>
+                                            {englishTestFields.map((item, index) => (
+                                                <div key={item.id} className="border p-4 rounded-xl bg-background relative">
+
+
+                                                    <div className='absolute -top-2 -right-2'>
+                                                        {englishTestFields.length > 1 && (
+                                                            <Button size="icon" className="w-8 h-8 p-[2px] rounded-full cursor-pointer" variant="outline" type="button" onClick={() => removeEnglishTest(index)}>
+                                                                <img src="/images/actions/trash.svg" alt="" />
+                                                            </Button>
+                                                        )}
                                                     </div>
-                                                    {englishTestFields.length > 1 && (
-                                                        <Button size="icon" variant="outline" type="button" onClick={() => removeEnglishTest(index)}>
-                                                            <Delete02Icon size={14} />
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                                <div className="grid grid-cols-12 gap-3">
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].test_id`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-6">
-                                                                <FormLabel>Test Name</FormLabel>
-                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+
+
+                                                    <div className="grid grid-cols-12 gap-3">
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].test_id`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-6">
+                                                                    <FormLabel>Test Name</FormLabel>
+                                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="w-full" error={form.formState.errors?.english_tests?.[index]?.test_id}>
+                                                                                <SelectValue placeholder="Select Test" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            {englishTests.length > 0 ? (
+                                                                                englishTests.map((test) => (
+                                                                                    <SelectItem key={test.id} value={test.id.toString()}>
+                                                                                        <div className='flex items-center gap-2'>
+                                                                                            <img className='w-4 h-4 rounded-full' src={test?.logo_url || "/images/placeholder/image.png"} alt="" />
+                                                                                            {test.name}
+                                                                                        </div>
+                                                                                    </SelectItem>
+                                                                                ))
+                                                                            ) : (
+                                                                                <div className="py-2 px-2 text-sm text-muted-foreground">
+                                                                                    No tests available
+                                                                                </div>
+                                                                            )}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].exam_date`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-6">
+                                                                    <FormLabel>Exam Date</FormLabel>
                                                                     <FormControl>
-                                                                        <SelectTrigger>
-                                                                            <SelectValue placeholder="Select Test" />
-                                                                        </SelectTrigger>
+                                                                        <DatePicker
+                                                                            error={form.formState.errors?.english_tests?.[index]?.exam_date}
+                                                                            {...field}
+                                                                        />
                                                                     </FormControl>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="1">IELTS</SelectItem>
-                                                                        <SelectItem value="2">TOEFL</SelectItem>
-                                                                        <SelectItem value="3">PTE</SelectItem>
-                                                                        <SelectItem value="4">Duolingo</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].exam_date`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-6">
-                                                                <FormLabel>Exam Date</FormLabel>
-                                                                <FormControl>
-                                                                    <DatePicker
-                                                                        error={form.formState.errors?.english_tests?.[index]?.exam_date}
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].overall_marks`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-6">
-                                                                <FormLabel>Overall Marks</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Overall"
-                                                                        type="number"
-                                                                        step="0.5"
-                                                                        {...field}
-                                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].listening_marks`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-6">
-                                                                <FormLabel>Listening</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Listening"
-                                                                        type="number"
-                                                                        step="0.5"
-                                                                        {...field}
-                                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].reading_marks`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-4">
-                                                                <FormLabel>Reading</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Reading"
-                                                                        type="number"
-                                                                        step="0.5"
-                                                                        {...field}
-                                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].writing_marks`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-4">
-                                                                <FormLabel>Writing</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Writing"
-                                                                        type="number"
-                                                                        step="0.5"
-                                                                        {...field}
-                                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`english_tests[${index}].speaking_marks`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="col-span-4">
-                                                                <FormLabel>Speaking</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Speaking"
-                                                                        type="number"
-                                                                        step="0.5"
-                                                                        {...field}
-                                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].overall_marks`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-6">
+                                                                    <FormLabel>Overall Marks</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Overall"
+                                                                            type="number"
+                                                                            step="0.5"
+                                                                            {...field}
+                                                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].listening_marks`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-6">
+                                                                    <FormLabel>Listening</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Listening"
+                                                                            type="number"
+                                                                            step="0.5"
+                                                                            {...field}
+                                                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].reading_marks`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-4">
+                                                                    <FormLabel>Reading</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Reading"
+                                                                            type="number"
+                                                                            step="0.5"
+                                                                            {...field}
+                                                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].writing_marks`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-4">
+                                                                    <FormLabel>Writing</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Writing"
+                                                                            type="number"
+                                                                            step="0.5"
+                                                                            {...field}
+                                                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`english_tests[${index}].speaking_marks`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-4">
+                                                                    <FormLabel>Speaking</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Speaking"
+                                                                            type="number"
+                                                                            step="0.5"
+                                                                            {...field}
+                                                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || '')}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                        <Button
-                                            size="sm"
-                                            type="button"
-                                            onClick={() => addMoreEnglishTest({ test_id: "", exam_date: "", overall_marks: "", listening_marks: "", reading_marks: "", reading_marks: "", writing_marks: "", speaking_marks: "" })}
-                                        >
-                                            Add More
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
+                                            ))}
+                                            <Button
+                                                size="sm"
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => addMoreEnglishTest({ test_id: "", exam_date: "", overall_marks: "", listening_marks: "", reading_marks: "", reading_marks: "", writing_marks: "", speaking_marks: "" })}
+                                            >
+                                                Add More
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                         </div>
 
-                        <div className='p-4 border-t flex justify-between items-center'>
+                        <div className='p-4 border-t border-dashed flex justify-between items-center bg-gray-100'>
                             <div></div>
                             <div>
                                 <RippleButton size="sm" type='submit'>Submit</RippleButton>

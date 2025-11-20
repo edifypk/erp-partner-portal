@@ -45,12 +45,12 @@ export function TeamSwitcher({
                 {/* <activeTeam.logo className="size-4" /> */}
                 <img src={agentData?.logo ? agentData?.logo_url : "/images/eLogo.svg"} alt="" className="size-5" />
               </div>
-              {/* <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight tracking-tight">
                 <span className="truncate font-semibold">
                   {agentData?.company_name}
                 </span>
                 <span className="truncate text-xs">Partner Portal</span>
-              </div> */}
+              </div>
               {teams.length > 1 && <ChevronsUpDown className="ml-auto" />}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
