@@ -55,7 +55,7 @@ const ApplicationTopbar = ({ env, process, application }) => {
 
 
             <div style={{ backgroundImage: `url('${application?.program?.institute?.banner_url}')` }} className="bg-cover overflow-hidden bg-center">
-                <div className="flex-1 px-6 pb-6 flex flex-col justify-end bg-linear-to-b from-white/50 to-white h-[200px]">
+                <div className="flex-1 px-6 pb-6 flex flex-col justify-end bg-linear-to-b from-white/50 backdrop-blur-sm to-white h-[200px]">
 
                     <div className='flex items-end justify-between'>
 
@@ -96,10 +96,10 @@ const ApplicationTopbar = ({ env, process, application }) => {
                                             label: "Intake",
                                             value: (application?.intake_month).toUpperCase() + " - " + application?.intake_year
                                         },
-                                        {
-                                            label: "Partner",
-                                            value: application?.partner?.company_name
-                                        },
+                                        // {
+                                        //     label: "Partner",
+                                        //     value: application?.partner?.company_name
+                                        // },
                                         {
                                             label: "Duration",
                                             value: `${application?.program?.min_length === application?.program?.max_length ? application?.program?.min_length : `${application?.program?.min_length} - ${application?.program?.max_length}`} Months`

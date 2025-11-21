@@ -7,8 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import SelectAssociate from './SelectAssociate'
-import SelectProcess from './SelectProcess'
 import { Task01Icon } from 'hugeicons-react'
 import flags from 'react-phone-number-input/flags'
 import { X } from 'lucide-react'

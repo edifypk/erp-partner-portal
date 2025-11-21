@@ -47,6 +47,7 @@ const Courses = ({ coursesContainerStyle, student_id, className }) => {
                     page: pageParam,
                     tags: currentFilters.tags.join(",")
                 },
+                withCredentials: true,
             });
             if (pageParam === 1) {
                 scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })

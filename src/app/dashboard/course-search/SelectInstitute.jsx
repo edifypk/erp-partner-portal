@@ -23,6 +23,7 @@ const SelectInstitute = ({ filters, field, placeholder, error }) => {
                 params: {
                     id: field?.value,
                 },
+                withCredentials:true
             });
             setSelectedItemData(response.data?.data?.[0] || null);
         } catch (error) {
@@ -42,6 +43,7 @@ const SelectInstitute = ({ filters, field, placeholder, error }) => {
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course-finder/institutes/search`, {
                     params,
+                    withCredentials:true
                 });
 
                 // if (field?.value && open) {

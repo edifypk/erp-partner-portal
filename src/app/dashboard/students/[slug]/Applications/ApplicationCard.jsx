@@ -23,7 +23,7 @@ const ApplicationCard = ({ application, student }) => {
     return (
         <>
 
-            <Link href={`/dashboard/crm/applications/${application?.application_id}`} className={`hover:ring-2 border ring-blue-200 block hover:shadow-sm cursor-pointer bg-white rounded-2xl transition-all duration-300 pb-4`}>
+            <Link href={`/dashboard/applications/${application?.application_id}`} className={`hover:ring-2 border ring-blue-200 block hover:shadow-sm cursor-pointer bg-white rounded-2xl transition-all duration-300 pb-4`}>
 
 
 
