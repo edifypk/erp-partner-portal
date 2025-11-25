@@ -338,23 +338,6 @@ const DataContextProvider = ({ children }) => {
     };
 
 
-    const getCitiesOfState = (filters = {}) => {
-
-        const { data, error } = useQuery({
-            queryKey: ['cities-of-state', filters],
-            queryFn: async () => {
-                const response = await axios.post(`https://countriesnow.space/api/v0.1/countries/state/cities`, filters);
-                return response.data;
-            },
-            staleTime: invalidateTime,
-        });
-
-        if (error) {
-            return [];
-        }
-
-        return data?.data?.sort((a, b) => a.localeCompare(b)) || [];
-    };
 
 
     const getLanguageCourses = (filters = {}) => {
@@ -394,7 +377,6 @@ const DataContextProvider = ({ children }) => {
             getContactDocsFolders,
             getCountries,
             getStatesOfCountry,
-            getCitiesOfState,
             getLanguageCourses
         }}>
             {children}

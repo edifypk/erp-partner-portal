@@ -124,10 +124,9 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
   })
 
 
-  const { getCountries, getStatesOfCountry, getCitiesOfState } = useContext(DataContext)
+  const { getCountries, getStatesOfCountry } = useContext(DataContext)
   const countries = getCountries()
   const statesOfCountry = getStatesOfCountry({ country: form.getValues("country") })
-  const citiesOfState = getCitiesOfState({ country: form.getValues("country"), state: form.getValues("state") })
 
 
 
@@ -300,25 +299,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                   <FormItem className="md:col-span-2">
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Select onValueChange={(city) => {
-                        field.onChange(city)
-                      }} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger
-                            error={form.formState.errors.city}
-                            className="bg-white"
-                          >
-                            <SelectValue placeholder="Select Your City" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {
-                            citiesOfState?.map((v, i) => {
-                              return <SelectItem key={i} value={v}>{v}</SelectItem>
-                            })
-                          }
-                        </SelectContent>
-                      </Select>
+                      <Input className="bg-white" placeholder="City" {...field} />
                     </FormControl>
                   </FormItem>
                 )}
