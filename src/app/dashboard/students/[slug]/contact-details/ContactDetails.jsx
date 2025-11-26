@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import PersonalInfo from './PersonalInfo'
 import ContactInfo from './ContactInfo'
 import EducationHistory from './EducationHistory'
+import EducationGap from './EducationGap'
 import EnglishTests from './EnglishTests'
 import WorkExperience from './WorkExperience'
 import TravelHistory from './TravelHistory'
@@ -83,6 +84,7 @@ const ContactDetails = ({ contact , editMode = true }) => {
         <PersonalInfo loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />
         <ContactInfo loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />
         <EducationHistory loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />
+        <EducationGap loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />
         <EnglishTests loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />
         <WorkExperience loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />
         <TravelHistory loading={loading} contact={contact} editMode={editMode} updateContact={updateContact} />

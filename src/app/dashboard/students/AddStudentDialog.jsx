@@ -56,6 +56,9 @@ const schema = z.object({
             year_of_completion: z.number().min(1, "Year of completion is required"),
             institute: z.string().min(1, "Institute is required"),
             marks: z.string().min(1, "Marks are required"),
+            grading_scheme: z.enum(['percentage', 'cgpa_4', 'cgpa_5', 'cgpa_7', 'cgpa_10'], {
+                required_error: "Grading scheme is required",
+            }),
         })
     ),
 
@@ -178,7 +181,7 @@ const AddStudentDialog = ({ children }) => {
             form.clearErrors("qualifications");
         } else {
             if (eduFields.length === 0) {
-                addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "" });
+                addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "", grading_scheme: "percentage" });
             }
             form.clearErrors("qualifications");
         }
@@ -740,11 +743,35 @@ const AddStudentDialog = ({ children }) => {
                                                             control={form.control}
                                                             name={`qualifications[${index}].marks`}
                                                             render={({ field }) => (
-                                                                <FormItem className="col-span-12">
+                                                                <FormItem className="col-span-8">
                                                                     <FormLabel>Marks/Grade</FormLabel>
                                                                     <FormControl>
                                                                         <Input placeholder="e.g. 85% or A Grade" {...field} />
                                                                     </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`qualifications[${index}].grading_scheme`}
+                                                            render={({ field }) => (
+                                                                <FormItem className="col-span-4">
+                                                                    <FormLabel>Grading Scheme</FormLabel>
+                                                                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value || "percentage"}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="w-full" error={form.formState.errors?.qualifications?.[index]?.grading_scheme}>
+                                                                                <SelectValue placeholder="Select Grading Scheme" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            <SelectItem value="percentage">Percentage</SelectItem>
+                                                                            <SelectItem value="cgpa_4">CGPA (4.0)</SelectItem>
+                                                                            <SelectItem value="cgpa_5">CGPA (5.0)</SelectItem>
+                                                                            <SelectItem value="cgpa_7">CGPA (7.0)</SelectItem>
+                                                                            <SelectItem value="cgpa_10">CGPA (10.0)</SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
                                                                     <FormMessage />
                                                                 </FormItem>
                                                             )}
@@ -756,7 +783,7 @@ const AddStudentDialog = ({ children }) => {
                                                 size="sm"
                                                 type="button"
                                                 variant="outline"
-                                                onClick={() => addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "" })}
+                                                onClick={() => addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "", grading_scheme: "percentage" })}
                                             >
                                                 Add More
                                             </Button>

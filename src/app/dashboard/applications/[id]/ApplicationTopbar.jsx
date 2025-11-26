@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import UpdateStatusModal from './UpdateStatusModal';
 import { Alert01Icon } from 'hugeicons-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -18,6 +17,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContextProvider';
+import BookEnrollmentDialog from './BookEnrollmentDialog';
+import Link from 'next/link';
 
 const ApplicationTopbar = ({ env, process, application }) => {
 
@@ -29,6 +30,11 @@ const ApplicationTopbar = ({ env, process, application }) => {
 
     const currentStage = process?.stages?.find(stage => stage?.statuses?.find(s => s?.status?.id === application?.app_status_id))
 
+    var isAllMilestonesCompleted = application?.is_submitted_to_institute && application?.is_unconditional_received && application?.is_fee_paid && application?.is_spon_letter_received && application?.is_visa_granted && application?.is_enrolled;
+    var isEligibleForEnrollment = isAllMilestonesCompleted && (!application?.is_enrollment_booked) && (application?.student?.student_type == 'sub_agent');
+
+
+    console.log(application)
 
 
 
@@ -120,36 +126,55 @@ const ApplicationTopbar = ({ env, process, application }) => {
 
 
 
-                        <div className='flex items-center gap-2'>
+                        <div>
+                            {isAllMilestonesCompleted ?
 
-                            <a href={`/dashboard/settings/crm/application-processes/${process?.id}`} target='_blank' className="text-xs text-transparent">{process.name}</a>
+                                <div>
 
-                            <div>
-                                <Badge variant='solid' radius='full' color={application?.status?.color} size="3">
-                                    {application?.status?.name}
-                                </Badge>
-                            </div>
+                                    {(isEligibleForEnrollment) ? <BookEnrollmentDialog application={application} /> : <Badge variant='solid' radius='full' color="yellow" size="3">Booking Pending</Badge>}
 
-                            <DropdownMenu open={isActionsDropdownOpen} onOpenChange={setIsActionsDropdownOpen}>
+                                    {application?.is_enrollment_booked &&
+                                        <Link href={`/dashboard/enrollments/${application?.enrollment?.id}`}>
+                                            <Badge variant='solid' radius='full' color="green" size="3">Enrollment Booked</Badge>
+                                        </Link>
+                                    }
+                                </div>
+
+                                :
+                                <div className='flex items-center gap-2'>
+
+                                    <a href={`/dashboard/settings/crm/application-processes/${process?.id}`} target='_blank' className="text-xs text-transparent">{process.name}</a>
+
+                                    <div>
+                                        <Badge variant='solid' radius='full' color={application?.status?.color} size="3">
+                                            {application?.status?.name}
+                                        </Badge>
+                                    </div>
+
+                                    <DropdownMenu open={isActionsDropdownOpen} onOpenChange={setIsActionsDropdownOpen}>
 
 
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-6 w-6 border border-gray-200 p-0 bg-white text-black hover:text-black">
-                                        <span className="sr-only">Open menu</span>
-                                        <MoreVertical />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className='w-44' align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-6 w-6 border border-gray-200 p-0 bg-white text-black hover:text-black">
+                                                <span className="sr-only">Open menu</span>
+                                                <MoreVertical />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className='w-44' align="end">
+                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                                    {/* <div className='px-2 py-1 rounded-md hover:bg-gray-100 cursor-pointer'>
+                                            {/* <div className='px-2 py-1 rounded-md hover:bg-gray-100 cursor-pointer'>
                                         <CancleModal setIsActionsDropdownOpen={setIsActionsDropdownOpen} application={application} />
                                     </div> */}
 
 
 
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>}
+
+
+
                         </div>
 
                     </div>
