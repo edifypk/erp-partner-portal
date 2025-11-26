@@ -1,27 +1,9 @@
 "use client"
 import { useAuth } from '@/context/AuthContextProvider'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 const PreLoader = () => {
-
-  const { agentData } = useAuth()
-
-  var [logoUrl, setLogoUrl] = useState(null)
-
-  // when logo_url received from agent data save in local storage and on load get it from local storage and if not found default eLogo.svg
-
-  useEffect(() => {
-    if (agentData?.logo) {
-      localStorage.setItem('agentLogo', agentData?.logo_url)
-      setLogoUrl(agentData?.logo_url)
-    }
-
-    if (localStorage.getItem('agentLogo')) {
-      setLogoUrl(localStorage.getItem('agentLogo'))
-    } else {
-      setLogoUrl("/images/eLogo.svg")
-    }
-  }, [agentData])
+  const { logoUrl } = useAuth()
 
 
   return (
@@ -35,7 +17,7 @@ const PreLoader = () => {
 
 
 
-        <img src={logoUrl} className='absolute w-12 z-10 h-12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' alt="" />
+        <img src={logoUrl} className='absolute rounded-full w-12 z-10 h-12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' alt="" />
       </div>
     </div>
   )

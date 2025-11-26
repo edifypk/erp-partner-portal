@@ -575,6 +575,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
          <div className="flex justify-center pt-4">
            <RippleButton
              type="submit"
+             className="min-w-[200px]"
              disabled={loading}
            >
              {loading && (

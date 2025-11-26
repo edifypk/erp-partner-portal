@@ -150,7 +150,7 @@ const GeneralSettings = () => {
     <div className="">
       {/* Header Section with Logo and Company Name */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
 
 
           <div className="flex items-center gap-6">
@@ -216,11 +216,11 @@ const GeneralSettings = () => {
 
           <div className='space-y-2'>
             <div className='flex justify-end'>
-              <ThemeSwitcher
+              {/* <ThemeSwitcher
                 value={theme}
                 onChange={setTheme}
                 className="scale-100"
-              />
+              /> */}
             </div>
             <ThemeColorToggle />
           </div>
@@ -263,7 +263,7 @@ const GeneralSettings = () => {
               <Globe02Icon className="text-primary" size={16} />
               {(agentData.city || agentData.state || agentData.country) && (
                 <div>
-                  {[agentData.city, agentData.state, agentData.country].filter(Boolean).join(', ')}
+                  {[agentData.city, agentData.state?.name, agentData.country?.name].filter(Boolean).join(', ')}
                 </div>
               )}
             </div>

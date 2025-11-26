@@ -40,11 +40,16 @@ export function TeamSwitcher({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+
+
+              {/* Logo Here */}
               <div
-                className="flex border aspect-square size-8 dark:bg-white items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                {/* <activeTeam.logo className="size-4" /> */}
-                <img src={agentData?.logo ? agentData?.logo_url : "/images/eLogo.svg"} alt="" className="size-5" />
+                className="flex border outline-hidden rounded-full aspect-square size-8 dark:bg-white items-center justify-center  bg-sidebar-primary text-sidebar-primary-foreground">
+                <img className="w-full h-full rounded-full object-cover" src={agentData?.logo ? agentData?.logo_url : "/images/eLogo.svg"} alt=""  />
               </div>
+
+
+
               <div className="grid flex-1 text-left text-sm leading-tight tracking-tight">
                 <span className="truncate font-semibold">
                   {agentData?.company_name}

@@ -286,18 +286,7 @@ const ContractSign = () => {
                                     </div>
                                 </object>
                             </div>
-                            <div className="mt-2 text-center border-t pt-2 bg-white">
-                                <a
-                                    href={contractUrl}
-                                    download="contract.pdf"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm text-blue-600 hover:underline inline-flex items-center gap-2"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    Download Contract
-                                </a>
-                            </div>
+                           
                         </div>
                     ) : (
                         <div className="flex justify-center items-center py-12 bg-gray-50 rounded-lg">

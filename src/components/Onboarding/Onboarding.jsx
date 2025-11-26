@@ -7,6 +7,8 @@ import SubAgentForm from './SubAgentForm'
 import CompanyDocs from './CompanyDocs'
 import ContractSign from './ContractSign'
 import { useAuth } from "@/context/AuthContextProvider"
+import { subAgentStatuses } from '@/data'
+import { Badge } from '@radix-ui/themes'
 
 const Onboarding = () => {
     const [swiper, setSwiper] = useState()
@@ -50,13 +52,18 @@ const Onboarding = () => {
 
     return (
         <div className='h-full flex flex-col bg-white relative'>
-            
+
             <div className='flex flex-col h-full w-full overflow-hidden relative z-20'>
 
                 {/* Top Stepper */}
                 <div className='pt-8 pb-2 bg-white'>
 
-                    <div className='text-center text-lg font-semibold tracking-tight'>Complete Your Registration</div>
+                    <div className='flex justify-center flex-col gap-1 items-center'>
+
+                        <Badge color={subAgentStatuses.find(v => v.slug === onboardingStatus)?.color} radius='full'>{subAgentStatuses.find(v => v.slug === onboardingStatus)?.name}</Badge>
+                        <div className='text-center text-lg font-semibold tracking-tight'>Complete Your Registration</div>
+
+                    </div>
 
                     <div className="flex justify-center my-6 w-full">
                         {steps.map((step, index, arry) => (
@@ -64,20 +71,20 @@ const Onboarding = () => {
                                 <div
                                     className={`w-8 h-8 font-semibold text-sm flex justify-center items-center relative rounded-full border transition-all duration-200
                                     ${(() => {
-                                        // Special handling for contract step (index 2)
-                                        if (index === 2 && !['pending_contract', 'approved'].includes(onboardingStatus)) {
-                                            return "border-gray-300 text-gray-400 opacity-50";
-                                        }
-                                        
-                                        // Regular step logic
-                                        if (activeStep >= (index + 1)) {
-                                            return "bg-linear-to-r text-white from-primary to-primary";
-                                        } else if (activeStep + 1 === (index + 1)) {
-                                            return "border-primary text-primary";
-                                        } else {
-                                            return "border-gray-300 text-gray-400 opacity-50";
-                                        }
-                                    })()}`}
+                                            // Special handling for contract step (index 2)
+                                            if (index === 2 && !['pending_contract', 'approved'].includes(onboardingStatus)) {
+                                                return "border-gray-300 text-gray-400 opacity-50";
+                                            }
+
+                                            // Regular step logic
+                                            if (activeStep >= (index + 1)) {
+                                                return "bg-linear-to-r text-white from-primary to-primary";
+                                            } else if (activeStep + 1 === (index + 1)) {
+                                                return "border-primary text-primary";
+                                            } else {
+                                                return "border-gray-300 text-gray-400 opacity-50";
+                                            }
+                                        })()}`}
                                 >
                                     {step.isChecked ? (
                                         <Tick02Icon strokeWidth={2.5} size={20} />

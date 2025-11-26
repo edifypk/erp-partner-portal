@@ -206,77 +206,38 @@ export const applicationChecks = [
 ]
 
 
-export const emailContactsStatuses = [
-    {
-        name: "Active",
-        slug: "active",
-        color: "green"
-    },
-    {
-        name: "Unsubscribed",
-        slug: "unsubscribed",
-        color: "red"
-    },
-    {
-        name: "Bounced",
-        slug: "bounced",
-        color: "red"
-    }
-]
 
+// 'submitted', 'in_progress', 'under_review', 'pending_contract', 'approved', 'rejected'),
 
-export const emailContactsSources = [
+export const subAgentStatuses = [
     {
-        name: "Imported",
-        slug: "imported",
-        icon: FileImportIcon,
-        color: "blue"
-    },
-    {
-        name: "Manual",
-        slug: "manual",
-        icon:CursorPointer01Icon,
-        color: "green"
-    },
-    {
-        name: "API",
-        slug: "api",
-        icon:Link04Icon,
-        color: "purple"
-    },
-    {
-        name: "Form",
-        icon:TypeCursorIcon,
-        slug: "form",
-        color: "orange"
-    }
-]
-
-
-export const emailCampaignStatuses = [
-    {
-        name: "Draft",
-        slug: "draft",
+        name: "Submitted",
+        slug: "submitted",
         color: "gray"
     },
     {
-        name: "Sending",
-        slug: "sending",
+        name: "In Progress",
+        slug: "in_progress",
         color: "orange"
     },
     {
-        name: "Scheduled",
-        slug: "scheduled",
+        name: "Under Review",
+        slug: "under_review",
         color: "blue"
     },
     {
-        name: "Sent",
-        slug: "sent",
+        name: "Pending Contract",
+        slug: "pending_contract",
+        color: "purple"
+    },
+    {
+        name: "Approved",
+        slug: "approved",
         color: "green"
     },
     {
-        name: "Failed",
-        slug: "failed",
+        name: "Rejected",
+        slug: "rejected",
         color: "red"
     }
 ]
