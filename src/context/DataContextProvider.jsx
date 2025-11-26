@@ -304,19 +304,32 @@ const DataContextProvider = ({ children }) => {
         const { data, error } = useQuery({
             queryKey: ['countries', filters],
             queryFn: async () => {
-                const response = await axios.get(`https://countriesnow.space/api/v0.1/countries/flag/images`, {
-                    params: filters,
-                });
-                return response.data;
+                try {
+                    // Use our own API endpoint
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sys/countries`, {
+                        params: {
+                            keyword: filters.keyword || '',
+                            limit: 300, // Get all countries (max 500)
+                            is_active: true,
+                            ...filters
+                        }
+                    });
+
+                    return response.data?.data || [];
+                } catch (err) {
+                    console.error("Error fetching countries:", err);
+                    throw err;
+                }
             },
-            staleTime: invalidateTime,
+            staleTime: invalidateTime * 12, // Cache for 1 hour (countries don't change often)
+            retry: 3,
         });
 
         if (error) {
             return [];
         }
 
-        return data?.data?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+        return data?.sort((a, b) => a.name.localeCompare(b.name)) || [];
     };
 
 
@@ -324,17 +337,29 @@ const DataContextProvider = ({ children }) => {
         const { data, error } = useQuery({
             queryKey: ['states-of-country', filters],
             queryFn: async () => {
-                const response = await axios.post(`https://countriesnow.space/api/v0.1/countries/states`, filters);
-                return response.data;
+                if (!filters.country_code && !filters.country_id) {
+                    return [];
+                }
+
+                try {
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sys/countries/states`, {
+                        params: {
+                            country_code: filters.country_code,
+                            country_id: filters.country_id,
+                            limit: 500,
+                        }
+                    });
+
+                    return response.data?.data || [];
+                } catch (err) {
+                    console.error("Error fetching states:", err);
+                    return [];
+                }
             },
-            staleTime: invalidateTime,
+            retry: 1,
         });
 
-        if (error) {
-            return [];
-        }
-
-        return data?.data?.states?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+        return data?.sort((a, b) => a.name.localeCompare(b.name)) || [];
     };
 
 

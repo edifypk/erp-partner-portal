@@ -19,7 +19,7 @@ const PhoneInput =
       return (
         <RPNInput.default
           ref={ref}
-          className={cn("flex border rounded-md", className, error && "border-red-500/20")}
+          className={cn("flex border bg-background rounded-md", className, error && "border-red-500/20")}
           flagComponent={FlagComponent}
           errorStyle={error && "border-red-500/20"}
           countrySelectComponent={CountrySelect}

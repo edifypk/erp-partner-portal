@@ -24,9 +24,24 @@ const formSchema = z.object({
             year_of_completion: z.number().min(1, "Year of completion is required"),
             institute: z.string().min(1, "Institute is required"),
             marks: z.string().min(1, "Marks are required"),
+            grading_scheme: z.enum(['percentage', 'cgpa_4', 'cgpa_5', 'cgpa_7', 'cgpa_10'], {
+                required_error: "Grading scheme is required",
+            }),
         })
     ),
 })
+
+// Helper function to format grading scheme display name
+const formatGradingScheme = (scheme) => {
+    const schemes = {
+        'percentage': 'Percentage',
+        'cgpa_4': 'CGPA (4.0)',
+        'cgpa_5': 'CGPA (5.0)',
+        'cgpa_7': 'CGPA (7.0)',
+        'cgpa_10': 'CGPA (10.0)',
+    };
+    return schemes[scheme] || scheme;
+}
 
 const EducationHistory = ({ contact, editMode, updateContact, loading }) => {
     const [open, setOpen] = useState(contact?.qualifications?.length == 0 ? false : true)
@@ -82,7 +97,7 @@ const EducationHistory = ({ contact, editMode, updateContact, loading }) => {
                                             <span className='w-1 h-1 rounded-full bg-gray-600'></span>
                                             {v.year_of_completion}
                                             <span className='w-1 h-1 rounded-full bg-gray-600'></span>
-                                            {v.marks}
+                                            {v.marks} {v.grading_scheme && `(${formatGradingScheme(v.grading_scheme)})`}
                                         </div>
                                         <div className='text-sm text-gray-500'>{v.institute}</div>
                                     </div>
@@ -121,7 +136,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
         defaultValues: {
             qualifications: contact?.qualifications?.length > 0
                 ? contact?.qualifications
-                : [{ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "" }]
+                : [{ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "", grading_scheme: "percentage" }]
         }
     })
 
@@ -249,6 +264,30 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                                                 </FormItem>
                                             )}
                                         />
+                                        <FormField
+                                            control={form.control}
+                                            name={`qualifications[${index}].grading_scheme`}
+                                            render={({ field }) => (
+                                                <FormItem className='col-span-1'>
+                                                    <FormLabel>Grading Scheme</FormLabel>
+                                                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="bg-white">
+                                                                <SelectValue placeholder="Select Grading Scheme" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="percentage">Percentage</SelectItem>
+                                                            <SelectItem value="cgpa_4">CGPA (4.0)</SelectItem>
+                                                            <SelectItem value="cgpa_5">CGPA (5.0)</SelectItem>
+                                                            <SelectItem value="cgpa_7">CGPA (7.0)</SelectItem>
+                                                            <SelectItem value="cgpa_10">CGPA (10.0)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
                                     </div>
                                 </div>
                             ))}
@@ -258,7 +297,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                                     size="sm"
                                     type="button"
                                     variant="outline"
-                                    onClick={() => addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "" })}
+                                    onClick={() => addMoreEdu({ edu_level_id: "", subject: "", year_of_completion: "", institute: "", marks: "", grading_scheme: "percentage" })}
                                 >
                                     Add More
                                 </Button>

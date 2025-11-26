@@ -21,7 +21,8 @@ function formatDate(date) {
 const ApplicationRequestCard = ({ application, student }) => {
 
     var router = useRouter()
-    var Flag = flags[application?.program?.institute?.country?.iso_code]
+    const countryCode = application?.program?.institute?.country?.country?.code;
+    const Flag = countryCode ? flags[countryCode] : null;
 
     return (
         <>
@@ -40,7 +41,7 @@ const ApplicationRequestCard = ({ application, student }) => {
 
 
                     <div className="absolute top-2 left-2 border border-black/10 bg-white/90 text-black font-semibold  backdrop-blur-md text-xs px-2 py-1 rounded-full flex items-center gap-2">
-                        <Flag width={20} height={20} /> {application?.program?.institute?.country?.short_name}
+                        {Flag && <Flag width={20} height={20} />} {application?.program?.institute?.country?.country?.name || 'N/A'}
                     </div>
 
                 </div>

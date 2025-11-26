@@ -27,7 +27,8 @@ const CourseCard = ({ course, keyword, student_id }) => {
     };
 
 
-    var Flag = flags[course?.institute?.country?.iso_code]
+    const countryCode = course?.institute?.country?.country?.code;
+    const Flag = countryCode ? flags[countryCode] : null;
 
 
     return (
@@ -63,7 +64,7 @@ const CourseCard = ({ course, keyword, student_id }) => {
                     />
 
                     <div className="absolute top-2 right-2 border border-black/20 bg-white/90 text-black font-semibold  backdrop-blur-md text-xs pr-2 pl-1 rounded-full flex items-center gap-1">
-                        <Flag width={20} height={20} style={{ borderRadius: '50%' }} /> {course?.institute?.country?.short_name}
+                        {Flag && <Flag width={20} height={20} style={{ borderRadius: '50%' }} />} {course?.institute?.country?.country?.name || 'N/A'}
                     </div>
                 </div>
 
@@ -126,13 +127,13 @@ const CourseCard = ({ course, keyword, student_id }) => {
                         <div className="flex justify-between items-center">
                             <div className='text-xs tracking-tight font-medium whitespace-nowrap'>Tuition (1st year)</div>
                             <div className='text-xs tracking-tight font-medium whitespace-nowrap'>
-                                {String(Math.round(course.tuition)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.currency_code}
+                                {String(Math.round(course.tuition)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.country?.currency_code || ''}
                             </div>
                         </div>
 
                         <div className="flex justify-between items-center">
                             <div className='text-xs tracking-tight font-medium whitespace-nowrap'>Application fee</div>
-                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>{String(Math.round(course.application_fee)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.currency_code}</div>
+                            <div className='text-xs tracking-tight font-medium whitespace-nowrap'>{String(Math.round(course.application_fee)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {course.institute?.country?.country?.currency_code || ''}</div>
                         </div>
 
                         <div className="flex justify-between items-center">

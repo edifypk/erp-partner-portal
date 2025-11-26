@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -28,6 +28,9 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Tick04Icon } from "hugeicons-react";
+import { useData } from "@/context/DataContextProvider";
+import flags from 'react-phone-number-input/flags';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 // Zod validation schema
@@ -37,9 +40,8 @@ const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-  country_iso2:z.string().min(2, "Please select a country"),
-  country: z.string().min(1, "Please select a country"),
-  state: z.string().min(1, "Please select a state"),
+  country_id: z.string().min(1, "Please select a country"),
+  state_id: z.string().min(1, "Please select a state"),
   city: z.string().min(1, "Please select a city"),
 });
 
@@ -48,16 +50,12 @@ export default function SignupForm({ onSubmitSuccess }) {
   
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [loadingStates, setLoadingStates] = useState(false);
-  const [loadingCities, setLoadingCities] = useState(false);
-
-
   const [loading, setLoading] = useState(false);
 
-
-
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { getCountries, getStatesOfCountry } = useData();
+  const countriesData = getCountries();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
@@ -71,92 +69,42 @@ export default function SignupForm({ onSubmitSuccess }) {
       name: "",
       email: "",
       phone: "",
-      country: "",
-      state: "",
+      country_id: "",
+      state_id: "",
       city: "",
     },
   });
 
-  // Fetch countries on component mount
+  // Update countries state when data is available
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await axios.get(
-          "https://countriesnow.space/api/v0.1/countries/flag/images"
-        );
-        if (response.data?.data) {
-          const sortedCountries = response.data.data.sort((a, b) =>
-            a.name.localeCompare(b.name)
-          );
-          setCountries(sortedCountries);
-        }
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-      }
-    };
-
-    fetchCountries();
-  }, []);
-
-  // Fetch states when country changes
-  const handleCountryChange = async (countryName, onChange) => {
-    onChange(countryName); // Call field.onChange to properly update form state
-    form.setValue("state", "");
-    form.setValue("city", "");
-    setStates([]);
-    setCities([]);
-
-
-    form.setValue("country_iso2", countries?.find(country => country.name === countryName)?.iso2 || "");
-
-    if (!countryName) return;
-
-    setLoadingStates(true);
-    try {
-      const response = await axios.post(
-        "https://countriesnow.space/api/v0.1/countries/states",
-        { country: countryName }
-      );
-      if (response.data?.data?.states) {
-        const sortedStates = response.data.data.states.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setStates(sortedStates);
-      }
-    } catch (error) {
-      console.error("Error fetching states:", error);
-    } finally {
-      setLoadingStates(false);
+    if (countriesData && countriesData.length > 0) {
+      setCountries(countriesData);
     }
-  };
+  }, [countriesData]);
 
-  // Fetch cities when state changes
-  const handleStateChange = async (stateName, onChange) => {
-    onChange(stateName); // Call field.onChange to properly update form state
-    form.setValue("city", "");
-    setCities([]);
+  // Watch selected country and fetch states
+  const selectedCountryId = form.watch("country_id");
+  const selectedCountry = countries?.find(country => country.id === selectedCountryId);
+  const statesData = getStatesOfCountry(
+    selectedCountry 
+      ? { country_code: selectedCountry.code, country_id: selectedCountry.id }
+      : {}
+  );
 
-    const countryName = form.getValues("country");
-    if (!countryName || !stateName) return;
-
-    setLoadingCities(true);
-    try {
-      const response = await axios.post(
-        "https://countriesnow.space/api/v0.1/countries/state/cities",
-        { country: countryName, state: stateName }
-      );
-      if (response.data?.data) {
-        const sortedCities = response.data.data.sort((a, b) =>
-          a.localeCompare(b)
-        );
-        setCities(sortedCities);
+  // Update states when country changes - only depend on selectedCountryId to avoid infinite loops
+  useEffect(() => {
+    if (Array.isArray(statesData)) {
+      if (statesData.length > 0) {
+        setStates(statesData);
+      } else if (!selectedCountryId) {
+        setStates([]);
       }
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-    } finally {
-      setLoadingCities(false);
+    } else if (!selectedCountryId) {
+      setStates([]);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountryId]); // Only depend on selectedCountryId to prevent infinite loops
+
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -301,12 +249,16 @@ export default function SignupForm({ onSubmitSuccess }) {
               {/* Country */}
               <FormField
                 control={form.control}
-                name="country"
+                name="country_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
                     <Select
-                      onValueChange={(value) => handleCountryChange(value, field.onChange)}
+                      onValueChange={(countryId) => {
+                        field.onChange(countryId);
+                        form.setValue("state_id", "");
+                        queryClient.invalidateQueries({ queryKey: ['states-of-country', { country_id: countryId }] });
+                      }}
                       value={field.value}
                     >
                       <FormControl>
@@ -315,18 +267,17 @@ export default function SignupForm({ onSubmitSuccess }) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent align="start">
-                        {countries.map((country) => (
-                          <SelectItem key={country.name} value={country.name}>
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={country.flag}
-                                alt={country.name}
-                                className="w-5 h-4 object-cover rounded-sm"
-                              />
-                              <span>{country.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {countries.map((country, i) => {
+                          const Flag = flags[country?.code];
+                          return (
+                            <SelectItem key={i} value={country.id}>
+                              <div className="flex items-center gap-2">
+                                {Flag ? <Flag width={20} height={20} /> : <div className='w-5 bg-white h-4 border'></div>}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -336,27 +287,20 @@ export default function SignupForm({ onSubmitSuccess }) {
               {/* State */}
               <FormField
                 control={form.control}
-                name="state"
+                name="state_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>State</FormLabel>
                     <Select
-                      onValueChange={(value) => handleStateChange(value, field.onChange)}
+                      onValueChange={(stateId) => {
+                        field.onChange(stateId);
+                      }}
                       value={field.value}
-                      disabled={!form.watch("country") || loadingStates}
+                      disabled={!form.watch("country_id")}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full bg-white relative">
-                          <SelectValue
-                            placeholder={
-                              loadingStates
-                                ? "Loading states..."
-                                : "Select a state"
-                            }
-                          />
-                          {loadingStates && <div className="absolute flex justify-center items-center w-5 h-5 right-2 bg-white z-10 top-1/2 -translate-y-1/2">
-                            <img className="w-4 h-4" src="/images/loading.gif" alt="" />
-                          </div>}
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="Select a state" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent align="start">
@@ -365,8 +309,8 @@ export default function SignupForm({ onSubmitSuccess }) {
                             No states available
                           </div>
                         ) : (
-                          states.map((state) => (
-                            <SelectItem key={state.name} value={state.name}>
+                          states.map((state, i) => (
+                            <SelectItem key={i} value={state.id}>
                               {state.name}
                             </SelectItem>
                           ))
@@ -384,37 +328,9 @@ export default function SignupForm({ onSubmitSuccess }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={!form.watch("state") || loadingCities}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full bg-white relative">
-                          <SelectValue
-                            placeholder={
-                              loadingCities ? "Loading cities..." : "Select a city"
-                            }
-                          />
-                          {loadingCities && <div className="absolute flex justify-center items-center w-5 h-5 right-2 bg-white z-10 top-1/2 -translate-y-1/2">
-                            <img className="w-4 h-4" src="/images/loading.gif" alt="" />
-                          </div>}
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent align="start">
-                        {cities.length === 0 ? (
-                          <div className="py-2 px-2 text-sm text-muted-foreground">
-                            No cities available
-                          </div>
-                        ) : (
-                          cities.map((city) => (
-                            <SelectItem key={city} value={city}>
-                              {city}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input className="bg-white" placeholder="Enter city name" {...field} />
+                    </FormControl>
                   </FormItem>
                 )}
               />

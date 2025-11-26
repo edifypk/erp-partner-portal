@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { Task01Icon } from 'hugeicons-react'
 import flags from 'react-phone-number-input/flags'
 import { X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Badge } from '@radix-ui/themes'
 import icons from '@/utils/icons'
 import axios from 'axios'
@@ -47,7 +47,8 @@ const CreateApplication = ({ course, student_id }) => {
 
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    var Flag = flags[course?.institute?.country?.iso_code]
+    const countryCode = course?.institute?.country?.country?.code;
+    const Flag = countryCode ? flags[countryCode] : null;
 
     const { agentData } = useAuth()
 
@@ -61,6 +62,22 @@ const CreateApplication = ({ course, student_id }) => {
             intake_year: new Date().getFullYear(),
         }
     });
+
+    // Set student_id when dialog opens and student_id is provided
+    useEffect(() => {
+        if (open) {
+            if (student_id) {
+                form.setValue('student_id', student_id);
+            }
+            // Reset form to default values when dialog opens
+            form.reset({
+                student_id: student_id || "",
+                program_id: course?.id,
+                intake_month: "",
+                intake_year: new Date().getFullYear(),
+            });
+        }
+    }, [open, student_id, course?.id]);
 
     const onSubmit = async (data) => {
         setLoading(true)
@@ -139,7 +156,7 @@ const CreateApplication = ({ course, student_id }) => {
 
 
                                         <div className="absolute top-4 left-4 border border-black/10 bg-white/70 text-black font-medium  backdrop-blur-md text-xs px-2 py-1 rounded-full flex items-center gap-2">
-                                            <Flag width={20} height={20} /> {course?.institute?.country?.short_name}
+                                            {Flag && <Flag width={20} height={20} />} {course?.institute?.country?.country?.name || 'N/A'}
                                         </div>
 
 
@@ -208,6 +225,7 @@ const CreateApplication = ({ course, student_id }) => {
                                                                 value={field.value}
                                                                 onChange={field.onChange}
                                                                 pathname="/sub-agents/students/search"
+                                                                editable={!student_id}
                                                             />
                                                         </FormControl>
                                                     </FormItem>
@@ -255,7 +273,6 @@ const CreateApplication = ({ course, student_id }) => {
                                                             {/* <FormMessage /> */}
                                                         </FormItem>
                                                     )}
-                                                    onBlur={() => handleStepValidation(1)}
                                                 />
 
                                                 <FormField
@@ -291,7 +308,6 @@ const CreateApplication = ({ course, student_id }) => {
                                                             {/* <FormMessage /> */}
                                                         </FormItem>
                                                     )}
-                                                    onBlur={() => handleStepValidation(1)}
                                                 />
                                             </div>
                                         </div>

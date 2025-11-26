@@ -14,6 +14,7 @@ import { DataContext } from '@/context/DataContextProvider'
 import { cn } from '@/lib/utils'
 import { Switch } from "@/components/ui/switch"
 import { Airplane01Icon } from 'hugeicons-react'
+import flags from 'react-phone-number-input/flags'
 
 const formSchema = z.object({
     travel_history: z.array(
@@ -95,7 +96,7 @@ const TravelHistory = ({ contact, editMode, updateContact, loading }) => {
                                     </div>
 
                                     <div className='pb-6'>
-                                        <div className='text-gray-800 font-medium'>{countries.find(c => c.iso2 === v.country_iso)?.name}</div>
+                                        <div className='text-gray-800 font-medium'>{countries.find(c => c.code === v.country_iso)?.name || v.country_iso || 'N/A'}</div>
                                         <div className='text-sm -translate-y-[2px] text-gray-600'>
                                             {months.find(m => m.value === v.month)?.label} {v.year} • {v.duration} • {v.visa_type}
                                         </div>
@@ -206,7 +207,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                                                         onValueChange={(country) => {
                                                             field.onChange(country)
                                                         }}
-                                                        defaultValue={field.value}
+                                                        value={field.value}
                                                     >
                                                         <FormControl>
                                                             <SelectTrigger
@@ -218,13 +219,13 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                                                         </FormControl>
                                                         <SelectContent>
                                                             {
-                                                                countries?.map((v, i) => {
-                                                                    // var Flag = flags[v.value]
+                                                                countries?.map((country) => {
+                                                                    const Flag = country.code ? flags[country.code] : null;
                                                                     return (
-                                                                        <SelectItem key={i} value={v.iso2}>
+                                                                        <SelectItem key={country.id || country.code} value={country.code}>
                                                                             <div className="flex items-center gap-2 cursor-pointer w-full flex-1">
-                                                                                <img className='w-5 h-4' src={v.flag} alt="" />
-                                                                                {v.name}
+                                                                                {Flag && <Flag width={20} height={20} />}
+                                                                                {country.name}
                                                                             </div>
                                                                         </SelectItem>
                                                                     )
@@ -232,6 +233,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                                                             }
                                                         </SelectContent>
                                                     </Select>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />

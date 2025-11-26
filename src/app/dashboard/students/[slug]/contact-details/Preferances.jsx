@@ -16,27 +16,34 @@ import { Input } from '@/components/ui/input'
 import flags from 'react-phone-number-input/flags'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Switch } from "@/components/ui/switch"
 
-const StudentPreferances = ({ enquiry, editMode, updateEnquiry,loading }) => {
-    const [open, setOpen] = useState(false)
+const StudentPreferances = ({ enquiry, updateEnquiry,loading }) => {
+    const hasPreferences = enquiry?.preferred_countries?.length > 0 || enquiry?.preferred_course || enquiry?.preferred_city
+    const [open, setOpen] = useState(hasPreferences)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+
     return (
         <div className='p-4 border rounded-xl bg-white'>
             <div className='flex justify-between items-start'>
                 <h2 className='tracking-normal font-semibold'>Preferences</h2>
                 <div className='w-10 h-10 flex items-center justify-center'>
                     {
-                        editMode ? (
-                            <UpdateModal loading={loading} open={open} setOpen={setOpen} enquiry={enquiry} updateEnquiry={updateEnquiry}>
-                                <EditPencil tooltip='Edit Preferences' editMode={editMode} onClick={() => setOpen(true)} />
-                            </UpdateModal>
+                        !hasPreferences ? (
+                            <Switch
+                                checked={open}
+                                onCheckedChange={setOpen}
+                            />
                         ) : (
-                            <img src="/images/icons/idea.png" className='w-12' alt="" />
+                            <UpdateModal loading={loading} open={editModalOpen} setOpen={setEditModalOpen} enquiry={enquiry} updateEnquiry={updateEnquiry}>
+                                <EditPencil tooltip='Edit Preferences' onClick={() => setEditModalOpen(true)} />
+                            </UpdateModal>
                         )
                     }
                 </div>
             </div>
 
-            <div className='space-y-4'>
+            {open && <div className='space-y-4'>
                 <div className='flex items-center gap-3'>
                     <div>
                         <svg
@@ -83,22 +90,11 @@ const StudentPreferances = ({ enquiry, editMode, updateEnquiry,loading }) => {
                             Preferred Countries
                         </div>
                         <div className='text-sm text-gray-600 flex items-center'>
-                            {enquiry?.preferred_countries?.map(c => c?.country?.name).join(' · ')}
-                            {/* {
-                                enquiry?.lead_preferred_countries?.map((c, ci) => {
-                                    var Flag = flags[c?.offered_country?.iso_code]
-                                    return (
-                                        <div key={ci} style={{ transform: `translateX(${ci * -3}px)` }} title={c?.offered_country?.name} className='select-none group w-6 h-6  gap-4 border rounded-full overflow-hidden border-gray-300 relative'>
-
-                                            <div className='absolute w-8 h-9 left-1/2 -translate-x-1/2'> <Flag /></div>
-
-                                            <div className="absolute inset-0 bg-white text-[8px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex justify-center items-center">
-                                                {c?.offered_country?.short_name}
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            } */}
+                            {enquiry?.preferred_countries?.length > 0 ? (
+                                enquiry?.preferred_countries?.map(c => c?.country?.name).filter(Boolean).join(' · ') || 'Not specified'
+                            ) : (
+                                'Not specified'
+                            )}
                         </div>
                     </div>
                 </div>
@@ -159,7 +155,7 @@ const StudentPreferances = ({ enquiry, editMode, updateEnquiry,loading }) => {
                             Preferred City
                         </div>
                         <div className='text-sm text-gray-600'>
-                            {enquiry?.preferred_city}
+                            {enquiry?.preferred_city || 'Not specified'}
                         </div>
                     </div>
                 </div>
@@ -199,12 +195,23 @@ const StudentPreferances = ({ enquiry, editMode, updateEnquiry,loading }) => {
                             Preferred Course
                         </div>
                         <div className='text-sm text-gray-600'>
-                            {enquiry?.preferred_course}
+                            {enquiry?.preferred_course || 'Not specified'}
                         </div>
                     </div>
                 </div>
 
-            </div>
+                {!hasPreferences && (
+                    <div className='flex flex-col items-center justify-center pb-10'>
+                        <div className='w-20 mb-4'>
+                            <img src="/images/no-data.svg" alt="" />
+                        </div>
+                        <div className='text-xs text-gray-400 mb-2'>Preferences Not Added</div>
+                        <UpdateModal loading={loading} open={editModalOpen} setOpen={setEditModalOpen} enquiry={enquiry} updateEnquiry={updateEnquiry}>
+                            <Button size="sm" variant="outline">Click to Add</Button>
+                        </UpdateModal>
+                    </div>
+                )}
+            </div>}
 
         </div>
     )
@@ -234,7 +241,7 @@ const UpdateModal = ({ children, open, setOpen, enquiry, updateEnquiry,loading }
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            preferred_countries: enquiry?.preferred_countries?.map(c => c?.country_id),
+            preferred_countries: enquiry?.preferred_countries?.map(c => c?.country_id).filter(Boolean) || [],
             preferred_course: enquiry?.preferred_course || "",
             preferred_city: enquiry?.preferred_city || "",
         }
@@ -265,7 +272,7 @@ const UpdateModal = ({ children, open, setOpen, enquiry, updateEnquiry,loading }
 
 
                 <DialogHeader>
-                    <DialogTitle>Update Sources</DialogTitle>
+                    <DialogTitle>Update Preferences</DialogTitle>
                 </DialogHeader>
 
 
@@ -288,14 +295,16 @@ const UpdateModal = ({ children, open, setOpen, enquiry, updateEnquiry,loading }
                                             </FormDescription>
                                         </div>
                                         <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3'>
-                                            {offeredCountries.map((item, i) => (
+                                            {offeredCountries.map((item, i) => {
+                                                const country = item?.country;
+                                                var Flag = country?.code ? flags[country.code] : null;
+                                                return (
                                                 <FormField
                                                     key={item.id}
                                                     className="border"
                                                     control={form.control}
                                                     name="preferred_countries"
                                                     render={({ field }) => {
-                                                        var Flag = flags[item?.iso_code]
                                                         return (
                                                             <FormItem
                                                                 key={item.id}
@@ -317,15 +326,15 @@ const UpdateModal = ({ children, open, setOpen, enquiry, updateEnquiry,loading }
                                                                 </FormControl>
                                                                 <FormLabel>
                                                                     <div className={cn('flex items-center gap-1')}>
-                                                                       <div className='w-6 border rounded-sm overflow-hidden h-4'><Flag /></div>
-                                                                        <div className='text-xs tracking-tight'>{item.name}</div>
+                                                                       {Flag && <div className='w-6 border rounded-sm overflow-hidden h-4'><Flag /></div>}
+                                                                        <div className='text-xs tracking-tight'>{country?.name || 'N/A'}</div>
                                                                     </div>
                                                                 </FormLabel>
                                                             </FormItem>
                                                         )
                                                     }}
                                                 />
-                                            ))}
+                                            )})}
                                         </div>
                                         <FormMessage />
                                     </FormItem>

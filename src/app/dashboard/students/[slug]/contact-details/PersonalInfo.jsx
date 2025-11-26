@@ -23,6 +23,7 @@ const formSchema = z.object({
   gender: z.string().min(1, "Gender is required"),
   dob: z.date(),
   marital_status: z.string().optional().nullable(),
+  religion: z.enum(['islam', 'christianity', 'hinduism', 'buddhism', 'judaism', 'other']).optional().nullable(),
   cnic: z.string().optional(),
   passport: z.string().optional(),
   passport_expiry_date: z.date().optional().nullable(),
@@ -68,6 +69,10 @@ const PersonalInfo = ({ contact, editMode, updateContact, loading }) => {
           <div className='text-xs font-medium  tracking-tight text-neutral-500 capitalize'>{contact?.marital_status ? contact?.marital_status : '--'}</div>
         </div>
         <div className=''>
+          <div className='text-xs font-medium tracking-tight'>Religion</div>
+          <div className='text-xs font-medium  tracking-tight text-neutral-500 capitalize'>{contact?.religion ? contact?.religion : '--'}</div>
+        </div>
+        <div className=''>
           <div className='text-xs font-medium tracking-tight'>CNIC</div>
           <div className='text-xs font-medium  tracking-tight text-neutral-500'>{contact?.cnic ? contact?.cnic : '--'}</div>
         </div>
@@ -94,6 +99,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
       gender: contact?.gender || '',
       dob: contact?.dob ? new Date(contact?.dob) : null,
       marital_status: contact?.marital_status || null,
+      religion: contact?.religion || null,
       cnic: contact?.cnic || '',
       passport: contact?.passport || '',
       passport_expiry_date: contact?.passport_expiry_date ? new Date(contact?.passport_expiry_date) : null,
@@ -201,6 +207,33 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                         <SelectItem value="married">Married</SelectItem>
                         <SelectItem value="divorced">Divorced</SelectItem>
                         <SelectItem value="widowed">Widowed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="religion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Religion</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className={field.value ? "text-black bg-white" : "text-gray-500 bg-white"}>
+                          <SelectValue placeholder="Select Religion" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem className="text-gray-500" value={null}>Not Specified</SelectItem>
+                        <SelectItem value="islam">Islam</SelectItem>
+                        <SelectItem value="christianity">Christianity</SelectItem>
+                        <SelectItem value="hinduism">Hinduism</SelectItem>
+                        <SelectItem value="buddhism">Buddhism</SelectItem>
+                        <SelectItem value="judaism">Judaism</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

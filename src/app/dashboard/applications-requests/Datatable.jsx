@@ -185,7 +185,8 @@ const Datatable = () => {
                                         <>
                                             {
                                                 applicationsRequests?.data?.data?.map((v, i) => {
-                                                    var Flag = flags[v?.program?.institute?.country?.iso_code]
+                                                    const countryCode = v?.program?.institute?.country?.country?.code;
+                                                    const Flag = countryCode ? flags[countryCode] : null;
                                                     return (
                                                         <TableRow key={i} className={`${i % 2 == 0 ? "bg-white hover:bg-gray-50" : "bg-gray-50 hover:bg-gray-50"} border-b border-dashed`}>
 
@@ -323,8 +324,8 @@ const Datatable = () => {
                                                             <TableCell>
                                                                 <div className="flex">
                                                                     <div className="flex bg-gray-100 items-center gap-1 py-[2px] pl-[6px] pr-2 rounded-full">
-                                                                        <Flag width={20} className="h-[20px]" height={20} />
-                                                                        <div className='text-xs font-medium'>{v?.program?.institute?.country?.short_name}</div>
+                                                                        {Flag && <Flag width={20} className="h-[20px]" height={20} />}
+                                                                        <div className='text-xs font-medium'>{v?.program?.institute?.country?.country?.name || 'N/A'}</div>
                                                                     </div>
                                                                 </div>
                                                             </TableCell>

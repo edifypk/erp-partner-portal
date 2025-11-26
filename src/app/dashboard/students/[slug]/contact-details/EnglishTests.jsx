@@ -72,7 +72,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
                 }
             </div>
 
-            {open && <div className='space-y-4 mt-4'>
+            {open && <div className='space-y-6 mt-4'>
                 {
                     contact?.english_tests?.length > 0 ? (
                         contact?.english_tests?.map((item, index) => (
@@ -95,7 +95,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
 
                                     <div className='flex items-center gap-2 border border-gray-300 bg-primary/5 border-dotted rounded-md p-2'>
                                         <div>
-                                            <SummationSquareIcon strokeWidth={1.3} />
+                                            <SummationSquareIcon size={20} strokeWidth={1} className='text-neutral-500' />
                                         </div>
                                         <div>
                                             <div className='font-medium text-gray-600 text-sm'>{item?.overall_marks}</div>
@@ -104,7 +104,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
                                     </div>
                                     <div className='flex items-center gap-2 border border-gray-300 bg-primary/5 border-dotted rounded-md p-2'>
                                         <div>
-                                            <HeadphonesIcon strokeWidth={1.3} />
+                                            <HeadphonesIcon size={20} strokeWidth={1} className='text-neutral-500' />
                                         </div>
                                         <div>
                                             <div className='font-medium text-gray-600 text-sm'>{item?.listening_marks}</div>
@@ -113,7 +113,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
                                     </div>
                                     <div className='flex items-center gap-2 border border-gray-300 bg-primary/5 border-dotted rounded-md p-2'>
                                         <div>
-                                            <ComputerIcon strokeWidth={1.3} />
+                                            <ComputerIcon size={20} strokeWidth={1} className='text-neutral-500' />
                                         </div>
                                         <div>
                                             <div className='font-medium text-gray-600 text-sm'>{item?.reading_marks}</div>
@@ -122,7 +122,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
                                     </div>
                                     <div className='flex items-center gap-2 border border-gray-300 bg-primary/5 border-dotted rounded-md p-2'>
                                         <div>
-                                            <KeyboardIcon strokeWidth={1.3} />
+                                            <KeyboardIcon size={20} strokeWidth={1} className='text-neutral-500' />
                                         </div>
                                         <div>
                                             <div className='font-medium text-gray-600 text-sm'>{item?.writing_marks}</div>
@@ -131,7 +131,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
                                     </div>
                                     <div className='flex items-center gap-2 border border-gray-300 bg-primary/5 border-dotted rounded-md p-2'>
                                         <div>
-                                            <Mic01Icon strokeWidth={1.3} />
+                                            <Mic01Icon size={20} strokeWidth={1} className='text-neutral-500' />
                                         </div>
                                         <div>
                                             <div className='font-medium text-gray-600 text-sm'>{item?.speaking_marks}</div>

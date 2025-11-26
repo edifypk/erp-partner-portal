@@ -28,7 +28,9 @@ import { toast } from "sonner";
 import { Location05Icon } from "hugeicons-react";
 import { RippleButton } from "../ui/shadcn-io/ripple-button";
 import { useAuth } from "@/context/AuthContextProvider";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useData } from "@/context/DataContextProvider";
+import flags from 'react-phone-number-input/flags';
 
 // Zod validation schema for sub agent form
 const subAgentSchema = z.object({
@@ -39,8 +41,8 @@ const subAgentSchema = z.object({
   phone: z.string().refine((val) => !val || isValidPhoneNumber(val), {
     message: "Invalid phone number"
   }).optional(),
-  country: z.string().min(1, "Please select a country"),
-  state: z.string().min(1, "Please select a state"),
+  country_id: z.string().min(1, "Please select a country"),
+  state_id: z.string().min(1, "Please select a state"),
   city: z.string().min(1, "Please select a city"),
   zip_code: z.number(),
   address: z.string().min(1, "Please enter your address"),
@@ -57,6 +59,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
   const [originalData, setOriginalData] = useState(null);
 
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { getCountries, getStatesOfCountry } = useData();
+  const countriesData = getCountries();
 
   // React Query for fetching sub-agent data
   const { data: agentData } = useQuery({
@@ -110,7 +115,7 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
     // Compare each field
     const fieldsToCompare = [
       'company_name', 'company_type', 'website', 'email', 'phone',
-      'country', 'state', 'city', 'zip_code', 'address'
+      'country_id', 'state_id', 'city', 'zip_code', 'address'
     ];
     
     for (const field of fieldsToCompare) {
@@ -134,8 +139,8 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
       website: defaultValues.website || "",
       email: defaultValues.email || "",
       phone: defaultValues.phone || "",
-      country: defaultValues.country || "",
-      state: defaultValues.state || "",
+      country_id: defaultValues.country_id || "",
+      state_id: defaultValues.state_id || "",
       city: defaultValues.city || "",
       zip_code: defaultValues.zip_code || "",
       address: defaultValues.address || "",
@@ -146,19 +151,9 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
   // Load sub agent data and countries on component mount
   useEffect(() => {
     const loadData = async () => {
-      // Fetch countries with ISO codes
-      try {
-        const response = await axios.get(
-          "https://countriesnow.space/api/v0.1/countries/flag/images"
-        );
-        if (response.data?.data) {
-          const sortedCountries = response.data.data.sort((a, b) =>
-            a.name.localeCompare(b.name)
-          );
-          setCountries(sortedCountries);
-        }
-      } catch (error) {
-        console.error("Error fetching countries:", error);
+      // Update countries from DataContext
+      if (countriesData && countriesData.length > 0) {
+        setCountries(countriesData);
       }
 
       // Fetch sub agent data if user is logged in
@@ -174,8 +169,8 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
             website: agentData.website || "",
             email: agentData.email || "",
             phone: agentData.phone || "",
-            country: agentData.country || "",
-            state: agentData.state || "",
+            country_id: agentData.country?.id || agentData.country_id || "",
+            state_id: agentData.state?.id || agentData.state_id || "",
             city: agentData.city || "",
             zip_code: agentData.zip_code || "",
             address: agentData.address || "",
@@ -186,105 +181,37 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
           // Store original data for comparison
           setOriginalData(formData);
 
-          // Load states and cities if country/state are already set
-          if (agentData.country) {
-            // Load states for the country
-            try {
-              const statesResponse = await axios.post(
-                "https://countriesnow.space/api/v0.1/countries/states",
-                { country: agentData.country }
-              );
-              if (statesResponse.data?.data?.states) {
-                const sortedStates = statesResponse.data.data.states.sort((a, b) =>
-                  a.name.localeCompare(b.name)
-                );
-                setStates(sortedStates);
-              }
-            } catch (error) {
-              console.error("Error fetching states:", error);
-            }
-
-            // Load cities if state is also set
-            if (agentData.state) {
-              try {
-                const citiesResponse = await axios.post(
-                  "https://countriesnow.space/api/v0.1/countries/state/cities",
-                  { country: agentData.country, state: agentData.state }
-                );
-                if (citiesResponse.data?.data) {
-                  const sortedCities = citiesResponse.data.data.sort((a, b) =>
-                    a.localeCompare(b)
-                  );
-                  setCities(sortedCities);
-                }
-              } catch (error) {
-                console.error("Error fetching cities:", error);
-              }
-            }
-          }
+          // Note: States will be loaded reactively via the form.watch("country_id") pattern below
+          // No need to manually call getStatesOfCountry here - it's already set up reactively
         }
       }
     };
 
     loadData();
-  }, [user]);
+  }, [user, countriesData]);
 
-  // Fetch states when country changes
-  const handleCountryChange = async (countryName, onChange) => {
-    onChange(countryName);
-    form.setValue("state", "");
-    form.setValue("city", "");
-    setStates([]);
-    setCities([]);
+  // Watch selected country and fetch states reactively
+  const selectedCountryId = form.watch("country_id");
+  const selectedCountry = countries?.find(country => country.id === selectedCountryId);
+  const statesData = getStatesOfCountry(
+    selectedCountry 
+      ? { country_code: selectedCountry.code, country_id: selectedCountry.id }
+      : {}
+  );
 
-    if (!countryName) return;
-
-    setLoadingStates(true);
-    try {
-      const response = await axios.post(
-        "https://countriesnow.space/api/v0.1/countries/states",
-        { country: countryName }
-      );
-      if (response.data?.data?.states) {
-        const sortedStates = response.data.data.states.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setStates(sortedStates);
+  // Update states when country changes or when states data arrives
+  useEffect(() => {
+    if (Array.isArray(statesData)) {
+      if (statesData.length > 0) {
+        setStates(statesData);
+      } else if (!selectedCountryId) {
+        setStates([]);
       }
-    } catch (error) {
-      console.error("Error fetching states:", error);
-    } finally {
-      setLoadingStates(false);
+    } else if (!selectedCountryId) {
+      setStates([]);
     }
-  };
-
-  // Fetch cities when state changes
-  const handleStateChange = async (stateName, onChange) => {
-    onChange(stateName);
-    form.setValue("city", "");
-    setCities([]);
-
-    const countryName = form.getValues("country");
-    if (!countryName || !stateName) return;
-
-    setLoadingCities(true);
-    try {
-      const response = await axios.post(
-        "https://countriesnow.space/api/v0.1/countries/state/cities",
-        { country: countryName, state: stateName }
-      );
-      if (response.data?.data) {
-        const sortedCities = response.data.data.sort((a, b) =>
-          a.localeCompare(b)
-        );
-        setCities(sortedCities);
-      }
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-    } finally {
-      setLoadingCities(false);
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountryId, statesData?.length]); // Include statesData.length to detect when query completes
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -300,8 +227,8 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
       
       if (hasChanged) {
         // Find the country ISO2 code from the selected country
-        const selectedCountry = countries.find(c => c.name === data.country);
-        const country_iso2 = selectedCountry?.iso2;
+        const selectedCountry = countries.find(c => c.id === data.country_id);
+        const country_iso2 = selectedCountry?.code;
 
         // Prepare data with country_iso2 for Odoo update
         const updatePayload = {
@@ -494,12 +421,17 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
               {/* Country */}
               <FormField
                 control={form.control}
-                name="country"
+                name="country_id"
                 render={({ field }) => (
                   <FormItem className="col-span-4">
                     <FormLabel>Country</FormLabel>
                     <Select
-                      onValueChange={(value) => handleCountryChange(value, field.onChange)}
+                      onValueChange={(countryId) => {
+                        field.onChange(countryId);
+                        form.setValue("state_id", "");
+                        form.setValue("city", "");
+                        queryClient.invalidateQueries({ queryKey: ['states-of-country', { country_id: countryId }] });
+                      }}
                       value={field.value}
                       disabled={isFormDisabled}
                     >
@@ -509,18 +441,17 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent align="start">
-                        {countries.map((country) => (
-                          <SelectItem key={country.name} value={country.name}>
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={country.flag}
-                                alt={country.name}
-                                className="w-5 h-4 object-cover rounded-[3px]"
-                              />
-                              <span>{country.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {countries.map((country, i) => {
+                          const Flag = flags[country?.code];
+                          return (
+                            <SelectItem key={i} value={country.id}>
+                              <div className="flex items-center gap-2">
+                                {Flag ? <Flag width={20} height={20} /> : <div className='w-5 bg-white h-4 border'></div>}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     {/* <FormMessage /> */}
@@ -531,29 +462,21 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
               {/* State */}
               <FormField
                 control={form.control}
-                name="state"
+                name="state_id"
                 render={({ field }) => (
                   <FormItem className="col-span-4">
                     <FormLabel>State</FormLabel>
                     <Select
-                      onValueChange={(value) => handleStateChange(value, field.onChange)}
+                      onValueChange={(stateId) => {
+                        field.onChange(stateId);
+                        form.setValue("city", "");
+                      }}
                       value={field.value}
-                      disabled={!form.watch("country") || loadingStates || isFormDisabled}
+                      disabled={!form.watch("country_id") || isFormDisabled}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full bg-white disabled:opacity-100 relative">
-                          <SelectValue
-                            placeholder={
-                              loadingStates
-                                ? "Loading states..."
-                                : "Select a state"
-                            }
-                          />
-                          {loadingStates && (
-                            <div className="absolute flex justify-center items-center w-5 h-5 right-2 bg-white z-10 top-1/2 -translate-y-1/2">
-                              <img className="w-4 h-4" src="/images/loading.gif" alt="" />
-                            </div>
-                          )}
+                        <SelectTrigger className="w-full bg-white disabled:opacity-100">
+                          <SelectValue placeholder="Select a state" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent align="start">
@@ -562,8 +485,8 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                             No states available
                           </div>
                         ) : (
-                          states.map((state) => (
-                            <SelectItem key={state.name} value={state.name}>
+                          states.map((state, i) => (
+                            <SelectItem key={i} value={state.id}>
                               {state.name}
                             </SelectItem>
                           ))
@@ -582,39 +505,14 @@ export default function SubAgentForm({ onSubmitSuccess, defaultValues = {} }) {
                 render={({ field }) => (
                   <FormItem className="col-span-4">
                     <FormLabel>City</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={!form.watch("state") || loadingCities || isFormDisabled}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full bg-white disabled:opacity-100 relative">
-                          <SelectValue
-                            placeholder={
-                              loadingCities ? "Loading cities..." : "Select a city"
-                            }
-                          />
-                          {loadingCities && (
-                            <div className="absolute flex justify-center items-center w-5 h-5 right-2 bg-white z-10 top-1/2 -translate-y-1/2">
-                              <img className="w-4 h-4" src="/images/loading.gif" alt="" />
-                            </div>
-                          )}
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent align="start">
-                        {cities.length === 0 ? (
-                          <div className="py-2 px-2 text-sm text-muted-foreground">
-                            No cities available
-                          </div>
-                        ) : (
-                          cities.map((city) => (
-                            <SelectItem key={city} value={city}>
-                              {city}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input
+                        className="bg-white disabled:opacity-100"
+                        placeholder="Enter city name"
+                        disabled={isFormDisabled}
+                        {...field}
+                      />
+                    </FormControl>
                     {/* <FormMessage /> */}
                   </FormItem>
                 )}

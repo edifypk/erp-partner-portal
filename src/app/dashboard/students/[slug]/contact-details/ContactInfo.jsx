@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import EditPencil from './EditPencil'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -16,10 +16,16 @@ import { useContext } from 'react'
 import { DataContext } from '@/context/DataContextProvider'
 import { useQueryClient } from '@tanstack/react-query'
 import { Call02Icon, Contact02Icon, ContactBookIcon, EarthIcon, Location04Icon, Mail01Icon, WhatsappIcon } from 'hugeicons-react'
+import flags from 'react-phone-number-input/flags'
 
 const ContactInfo = ({ contact, editMode, updateContact, loading }) => {
 
   const [open, setOpen] = useState(false)
+  
+  // Get country and state names from associations
+  const countryName = contact?.country?.name || '';
+  const stateName = contact?.state?.name || '';
+  
   var contactsList = [
     {
       label: "Phone Number",
@@ -37,7 +43,7 @@ const ContactInfo = ({ contact, editMode, updateContact, loading }) => {
       label: "Location",
       icon: EarthIcon,
       className:"col-span-2",
-      value: `${contact?.city}, ${contact?.state}, ${contact?.country}`
+      value: [contact?.city, stateName, countryName].filter(Boolean).join(', ') || '--'
     },
     {
       label: "Address",
@@ -48,7 +54,7 @@ const ContactInfo = ({ contact, editMode, updateContact, loading }) => {
   ]
 
   return (
-    <div className='px-6 pt-4 pb-2 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+    <div className='px-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
       <div className='flex justify-between items-start'>
         <h2 className='tracking-normal font-semibold flex items-center gap-1'>
           <Contact02Icon className='-translate-x-1' />
@@ -98,17 +104,30 @@ export default ContactInfo
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-  alt_phone: z.string().optional().refine(isValidPhoneNumber, { message: "Invalid phone number" }).nullable(),
+  alt_phone: z.string().optional().refine(
+    (val) => {
+      // If value is empty, null, or undefined, it's valid (optional field)
+      if (!val || val.trim() === "") return true;
+      // Otherwise, validate the phone number
+      return isValidPhoneNumber(val);
+    }, 
+    { message: "Invalid phone number" }
+  ).nullable(),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  country: z.string().min(1, "Nationality is required"),
+  state_id: z.string().uuid("State is required"),
+  country_id: z.string().uuid("Country is required"),
 })
 
 
 const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading }) => {
 
   const queryClient = useQueryClient()
+
+  // Get country and state IDs from associations for form defaults
+  const defaultCountryId = contact?.country_id || contact?.country?.id || "";
+  const defaultStateId = contact?.state_id || contact?.state?.id || "";
+  const defaultCountryCode = contact?.country?.code || "";
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -118,21 +137,48 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
       alt_phone: contact?.alt_phone || "",
       address: contact?.address || "",
       city: contact?.city || "",
-      state: contact?.state || "",
-      country: contact?.country || "",
+      state_id: defaultStateId,
+      country_id: defaultCountryId,
     }
   })
 
+  // Update form values when dialog opens or contact changes
+  useEffect(() => {
+    if (open && contact) {
+      const countryId = contact?.country_id || contact?.country?.id || "";
+      const stateId = contact?.state_id || contact?.state?.id || "";
+      form.reset({
+        email: contact?.email || "",
+        phone: contact?.phone || "",
+        alt_phone: contact?.alt_phone || "",
+        address: contact?.address || "",
+        city: contact?.city || "",
+        state_id: stateId,
+        country_id: countryId,
+      });
+    }
+  }, [open, contact, form]);
 
   const { getCountries, getStatesOfCountry } = useContext(DataContext)
   const countries = getCountries()
-  const statesOfCountry = getStatesOfCountry({ country: form.getValues("country") })
+  
+  // Get the current country_id from form to determine which states to fetch
+  const currentCountryId = form.watch("country_id");
+  const currentCountry = countries?.find(c => c.id === currentCountryId);
+  const countryIdForStates = currentCountryId || defaultCountryId;
+  const countryCodeForStates = currentCountry?.code || defaultCountryCode;
+  
+  const statesOfCountry = getStatesOfCountry({ 
+    country_id: countryIdForStates,
+    country_code: countryCodeForStates 
+  })
 
 
 
 
 
   const onSubmit = async (data) => {
+    // Data already contains country_id and state_id, so we can submit directly
     await updateContact({
       form,
       data,
@@ -213,36 +259,44 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
 
               <FormField
                 control={form.control}
-                name="country"
+                name="country_id"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
                     <FormLabel>Country</FormLabel>
                     <Select
-                      onValueChange={(country) => {
-                        field.onChange(country)
-                        form.setValue("state", "")
+                      onValueChange={(countryId) => {
+                        field.onChange(countryId)
+                        form.setValue("state_id", "")
                         form.setValue("city", "")
-                        queryClient.invalidateQueries({ queryKey: ['states-of-country', { country: country }] })
-                        queryClient.invalidateQueries({ queryKey: ['cities-of-state', { country: country, state: "" }] })
+                        // Find the country object to get its code
+                        const selectedCountry = countries?.find(c => c.id === countryId);
+                        const countryCode = selectedCountry?.code;
+                        queryClient.invalidateQueries({ queryKey: ['states-of-country', { country_id: countryId, country_code: countryCode }] })
+                        queryClient.invalidateQueries({ queryKey: ['cities-of-state', { country_id: countryId, state_id: "" }] })
                       }}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger
-                          error={form.formState.errors.country}
+                          error={form.formState.errors.country_id}
                           className="bg-white"
                         >
-                          <SelectValue placeholder="Select Your Country" />
+                          <SelectValue placeholder="Select Your Country">
+                            {field.value ? (() => {
+                              const selectedCountry = countries?.find(c => c.id === field.value);
+                              return selectedCountry?.name || "";
+                            })() : ""}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {
                           countries?.map((v, i) => {
-                            // var Flag = flags[v.value]
+                            const Flag = v.code ? flags[v.code] : null;
                             return (
-                              <SelectItem key={i} value={v.name}>
+                              <SelectItem key={i} value={v.id}>
                                 <div className="flex items-center gap-2 cursor-pointer w-full flex-1">
-                                  <img className='w-5 h-4' src={v.flag} alt="" />
+                                  {Flag && <Flag width={20} height={20} />}
                                   {v.name}
                                 </div>
                               </SelectItem>
@@ -251,34 +305,40 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                         }
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="state"
+                name="state_id"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
                     <FormLabel>State</FormLabel>
-                    <Select onValueChange={(state) => {
-                      field.onChange(state)
+                    <Select onValueChange={(stateId) => {
+                      field.onChange(stateId)
                       form.setValue("city", "")
-                      queryClient.invalidateQueries({ queryKey: ['cities-of-state', { country: form.getValues("country"), state: state }] })
-                    }} defaultValue={field.value}>
+                      queryClient.invalidateQueries({ queryKey: ['cities-of-state', { country_id: form.getValues("country_id"), state_id: stateId }] })
+                    }} value={field.value}>
                       <FormControl>
                         <SelectTrigger
-                          error={form.formState.errors.state}
+                          error={form.formState.errors.state_id}
                           className="bg-white"
                         >
-                          <SelectValue placeholder="Select Your State" />
+                          <SelectValue placeholder="Select Your State">
+                            {field.value ? (() => {
+                              const selectedState = statesOfCountry?.find(s => s.id === field.value);
+                              return selectedState?.name || "";
+                            })() : ""}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {
                           statesOfCountry?.map((v, i) => {
                             return (
-                              <SelectItem key={i} value={v.name}>
+                              <SelectItem key={i} value={v.id}>
                                 <div className="flex items-center gap-2 cursor-pointer w-full flex-1">
                                   {v.name}
                                 </div>
@@ -288,6 +348,7 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
                         }
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

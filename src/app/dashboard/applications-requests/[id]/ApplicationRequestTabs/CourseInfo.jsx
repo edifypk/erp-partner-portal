@@ -6,7 +6,8 @@ import { getCurrencyCode, getCurrencySymbol } from '@/utils/currencyUtils'
 
 const CourseInfo = ({ application }) => {
 
-    var Flag = flags[application?.program?.institute?.country?.iso_code]
+    const countryCode = application?.program?.institute?.country?.country?.code;
+    const Flag = countryCode ? flags[countryCode] : null;
 
 
 
@@ -22,7 +23,7 @@ const CourseInfo = ({ application }) => {
 
 
                 <div className="absolute top-4 left-4 border border-black/10 bg-white/90 text-black font-semibold  backdrop-blur-md text-xs px-2 py-1 rounded-full flex items-center gap-2">
-                    <Flag width={20} height={20} /> {application?.program?.institute?.country?.short_name}
+                    {Flag && <Flag width={20} height={20} />} {application?.program?.institute?.country?.country?.name || 'N/A'}
                 </div>
 
 
@@ -77,7 +78,7 @@ const CourseInfo = ({ application }) => {
                     </div>
                     <div>
                         <div className='text-xs text-gray-500'>Tuition Fee (1st year)</div>
-                        <div className='text-xs font-medium text-gray-600'>{getCurrencySymbol(application?.program?.institute?.country_code)}{String(Math.round(application?.program?.tuition)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {getCurrencyCode(application?.program?.institute?.country?.iso_code)}</div>
+                        <div className='text-xs font-medium text-gray-600'>{getCurrencySymbol(application?.program?.institute?.country?.country?.code)}{String(Math.round(application?.program?.tuition)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {getCurrencyCode(application?.program?.institute?.country?.country?.code)}</div>
                     </div>
                 </div>
 
@@ -87,7 +88,7 @@ const CourseInfo = ({ application }) => {
                     </div>
                     <div>
                         <div className='text-xs text-gray-500'>Application Fee</div>
-                        <div className='text-xs font-medium text-gray-600'>{getCurrencySymbol(application?.program?.institute?.country_code)}{String(Math.round(application?.program?.application_fee)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {getCurrencyCode(application?.program?.institute?.country?.iso_code)}</div>
+                        <div className='text-xs font-medium text-gray-600'>{getCurrencySymbol(application?.program?.institute?.country?.country?.code)}{String(Math.round(application?.program?.application_fee)).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} {getCurrencyCode(application?.program?.institute?.country?.country?.code)}</div>
                     </div>
                 </div>
 

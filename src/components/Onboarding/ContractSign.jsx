@@ -12,6 +12,15 @@ const ContractSign = () => {
     const [initiatingSign, setInitiatingSign] = useState(false);
     const { agentData } = useAuth();
 
+    // Cleanup blob URL on unmount
+    useEffect(() => {
+        return () => {
+            if (contractUrl && contractUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(contractUrl);
+            }
+        };
+    }, [contractUrl]);
+
     const onboardingStatus = agentData?.onboarding_status || 'in_progress';
 
     // Fetch contract attachment ONCE when status becomes pending_contract or approved
@@ -24,16 +33,50 @@ const ContractSign = () => {
                         { withCredentials: true }
                     );
                     
+                    console.log("Contract attachment response:", response.data);
+                    
                     if (response.data.status === 'success') {
                         const attachment = response.data.data;
                         
                         if (attachment.datas) {
-                            const dataUrl = `data:${attachment.mimeType};base64,${attachment.datas}`;
-                            setContractUrl(dataUrl);
+                            // Ensure mimeType is set, default to PDF
+                            const mimeType = attachment.mimeType || 'application/pdf';
+                            // Trim any whitespace from base64 data
+                            const base64Data = attachment.datas.trim();
+                            
+                            // Convert base64 to blob URL for better iframe compatibility
+                            try {
+                                // Decode base64 to binary
+                                const binaryString = atob(base64Data);
+                                const bytes = new Uint8Array(binaryString.length);
+                                for (let i = 0; i < binaryString.length; i++) {
+                                    bytes[i] = binaryString.charCodeAt(i);
+                                }
+                                
+                                // Create blob and URL
+                                const blob = new Blob([bytes], { type: mimeType });
+                                const blobUrl = URL.createObjectURL(blob);
+                                
+                                console.log("Setting contract URL (blob), mimeType:", mimeType, "dataLength:", base64Data.length, "blobUrl:", blobUrl);
+                                setContractUrl(blobUrl);
+                            } catch (error) {
+                                console.error("Error creating blob URL:", error);
+                                // Fallback to data URL
+                                const dataUrl = `data:${mimeType};base64,${base64Data}`;
+                                console.log("Using data URL fallback:", dataUrl.substring(0, 50) + "...");
+                                setContractUrl(dataUrl);
+                            }
+                        } else {
+                            console.error("No datas field in attachment response:", attachment);
                         }
+                    } else {
+                        console.error("API returned non-success status:", response.data);
                     }
                 } catch (error) {
                     console.error("Error fetching contract attachment:", error);
+                    if (error.response) {
+                        console.error("Error response:", error.response.data);
+                    }
                 }
             };
 
@@ -203,14 +246,58 @@ const ContractSign = () => {
 
                 <div>
                     {contractUrl ? (
-                        <div className="rounded-lg overflow-hidden border border-gray-200">
-                            <iframe
-                                src={contractUrl}
-                                width="100%"
-                                height="600px"
-                                className="border-0"
-                                title="Contract Document Preview"
-                            />
+                        <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                            <div style={{ width: '100%', height: '600px', position: 'relative', backgroundColor: '#f5f5f5' }}>
+                                <object
+                                    data={contractUrl}
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="100%"
+                                    style={{ minHeight: '600px', border: 'none' }}
+                                    title="Contract Document Preview"
+                                >
+                                    <div className="flex flex-col items-center justify-center h-full p-8">
+                                        <FileText className="w-16 h-16 text-gray-400 mb-4" />
+                                        <p className="text-gray-600 mb-4 text-center">
+                                            Your browser doesn't support inline PDF viewing.
+                                        </p>
+                                        <div className="flex gap-3">
+                                            <Button
+                                                onClick={() => window.open(contractUrl, '_blank')}
+                                                className="inline-flex items-center gap-2"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                                View Contract
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => {
+                                                    const link = document.createElement('a');
+                                                    link.href = contractUrl;
+                                                    link.download = 'contract.pdf';
+                                                    link.click();
+                                                }}
+                                                className="inline-flex items-center gap-2"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                Download
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </object>
+                            </div>
+                            <div className="mt-2 text-center border-t pt-2 bg-white">
+                                <a
+                                    href={contractUrl}
+                                    download="contract.pdf"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-600 hover:underline inline-flex items-center gap-2"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Download Contract
+                                </a>
+                            </div>
                         </div>
                     ) : (
                         <div className="flex justify-center items-center py-12 bg-gray-50 rounded-lg">

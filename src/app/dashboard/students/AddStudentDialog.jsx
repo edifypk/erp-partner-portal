@@ -24,6 +24,7 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import AvatarPicker from '@/components/AvatarPicker'
 import { useData } from '@/context/DataContextProvider'
+import flags from 'react-phone-number-input/flags'
 
 const schema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -32,9 +33,9 @@ const schema = z.object({
 
     email: z.string().email("Invalid email address"),
     phone: z.string().refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-    country: z.string().min(1, "Country is required"),
+    country_id: z.string().min(1, "Country is required"),
     city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State is required"),
+    state_id: z.string().min(1, "State is required"),
 
 
     // Step 3: Work Experience
@@ -76,14 +77,11 @@ const schema = z.object({
 
 const AddStudentDialog = ({ children }) => {
     const queryClient = useQueryClient()
-    const { getProgramLevels, getEnglishTests } = useData()
+    const { getProgramLevels, getEnglishTests, getCountries, getStatesOfCountry } = useData()
     const [open, setOpen] = useState(false)
 
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
-    const [cities, setCities] = useState([]);
-    const [loadingStates, setLoadingStates] = useState(false);
-    const [loadingCities, setLoadingCities] = useState(false);
 
     const [hasEducationGaps, setHasEducationGaps] = useState(false);
     const [hasQualifications, setHasQualifications] = useState(false);
@@ -93,7 +91,7 @@ const AddStudentDialog = ({ children }) => {
     // Fetch education levels and English tests from API
     const programLevels = getProgramLevels({ limit: 50 }) || [];
     const englishTests = getEnglishTests() || [];
-
+    const countriesData = getCountries();
 
     const form = useForm({
         resolver: zodResolver(schema),
@@ -103,9 +101,9 @@ const AddStudentDialog = ({ children }) => {
             gender: '',
             email: '',
             phone: '',
-            country: '',
+            country_id: '',
             city: '',
-            state: '',
+            state_id: '',
             education_gaps: [],
             qualifications: [],
             english_tests: [],
@@ -130,86 +128,31 @@ const AddStudentDialog = ({ children }) => {
 
 
 
-    // Fetch countries on component mount
+    // Update countries state when data is available
     useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                const response = await axios.get(
-                    "https://countriesnow.space/api/v0.1/countries/flag/images"
-                );
-                if (response.data?.data) {
-                    const sortedCountries = response.data.data.sort((a, b) =>
-                        a.name.localeCompare(b.name)
-                    );
-                    setCountries(sortedCountries);
-                }
-            } catch (error) {
-                console.error("Error fetching countries:", error);
-            }
-        };
-
-        fetchCountries();
-    }, []);
-
-    // Fetch states when country changes
-    const handleCountryChange = async (countryName, onChange) => {
-        onChange(countryName); // Call field.onChange to properly update form state
-        form.setValue("state", "");
-        form.setValue("city", "");
-        setStates([]);
-        setCities([]);
-
-
-        form.setValue("country_iso2", countries?.find(country => country.name === countryName)?.iso2 || "");
-
-        if (!countryName) return;
-
-        setLoadingStates(true);
-        try {
-            const response = await axios.post(
-                "https://countriesnow.space/api/v0.1/countries/states",
-                { country: countryName }
-            );
-            if (response.data?.data?.states) {
-                const sortedStates = response.data.data.states.sort((a, b) =>
-                    a.name.localeCompare(b.name)
-                );
-                setStates(sortedStates);
-            }
-        } catch (error) {
-            console.error("Error fetching states:", error);
-        } finally {
-            setLoadingStates(false);
+        if (countriesData && countriesData.length > 0) {
+            setCountries(countriesData);
         }
-    };
+    }, [countriesData]);
 
-    // Fetch cities when state changes
-    const handleStateChange = async (stateName, onChange) => {
-        onChange(stateName); // Call field.onChange to properly update form state
-        form.setValue("city", "");
-        setCities([]);
+    // Watch selected country and fetch states
+    const selectedCountryId = form.watch("country_id");
+    const selectedCountry = countries?.find(country => country.id === selectedCountryId);
+    const statesData = getStatesOfCountry(
+        selectedCountry 
+            ? { country_code: selectedCountry.code, country_id: selectedCountry.id }
+            : {}
+    );
 
-        const countryName = form.getValues("country");
-        if (!countryName || !stateName) return;
-
-        setLoadingCities(true);
-        try {
-            const response = await axios.post(
-                "https://countriesnow.space/api/v0.1/countries/state/cities",
-                { country: countryName, state: stateName }
-            );
-            if (response.data?.data) {
-                const sortedCities = response.data.data.sort((a, b) =>
-                    a.localeCompare(b)
-                );
-                setCities(sortedCities);
-            }
-        } catch (error) {
-            console.error("Error fetching cities:", error);
-        } finally {
-            setLoadingCities(false);
+    // Update states when data is available
+    useEffect(() => {
+        if (statesData && statesData.length > 0) {
+            setStates(statesData);
+        } else if (!selectedCountryId) {
+            setStates([]);
         }
-    };
+    }, [statesData, selectedCountryId]);
+
 
     // Education Gaps Validation
     useEffect(() => {
@@ -292,9 +235,9 @@ const AddStudentDialog = ({ children }) => {
                     gender: '',
                     email: '',
                     phone: '',
-                    country: '',
+                    country_id: '',
                     city: '',
-                    state: '',
+                    state_id: '',
                     education_gaps: [],
                     qualifications: [],
                     english_tests: [],
@@ -480,32 +423,36 @@ const AddStudentDialog = ({ children }) => {
 
                                 <FormField
                                     control={form.control}
-                                    name="country"
+                                    name="country_id"
                                     render={({ field }) => (
                                         <FormItem className="">
                                             <FormLabel>Country</FormLabel>
                                             <Select
-                                                onValueChange={(value) => handleCountryChange(value, field.onChange)}
+                                                onValueChange={(countryId) => {
+                                                    field.onChange(countryId);
+                                                    form.setValue("state_id", "");
+                                                    form.setValue("city", "");
+                                                    queryClient.invalidateQueries({ queryKey: ['states-of-country', { country_id: countryId }] });
+                                                }}
                                                 value={field.value}
                                             >
                                                 <FormControl>
-                                                    <SelectTrigger className="w-full" error={form.formState.errors.country}>
+                                                    <SelectTrigger className="w-full" error={form.formState.errors.country_id}>
                                                         <SelectValue placeholder="Select a country" />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent align="start">
-                                                    {countries.map((country) => (
-                                                        <SelectItem key={country.name} value={country.name}>
-                                                            <div className="flex items-center gap-2">
-                                                                <img
-                                                                    src={country.flag}
-                                                                    alt={country.name}
-                                                                    className="w-5 h-4 object-cover rounded-sm"
-                                                                />
-                                                                <span>{country.name}</span>
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
+                                                    {countries.map((country, i) => {
+                                                        const Flag = flags[country?.code];
+                                                        return (
+                                                            <SelectItem key={i} value={country.id}>
+                                                                <div className="flex items-center gap-2">
+                                                                    {Flag ? <Flag width={20} height={20} /> : <div className='w-5 bg-white h-4 border'></div>}
+                                                                    <span>{country.name}</span>
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>
@@ -513,27 +460,21 @@ const AddStudentDialog = ({ children }) => {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="state"
+                                    name="state_id"
                                     render={({ field }) => (
                                         <FormItem className="">
                                             <FormLabel>State</FormLabel>
                                             <Select
-                                                onValueChange={(value) => handleStateChange(value, field.onChange)}
+                                                onValueChange={(stateId) => {
+                                                    field.onChange(stateId);
+                                                    form.setValue("city", "");
+                                                }}
                                                 value={field.value}
-                                                disabled={!form.watch("country") || loadingStates}
+                                                disabled={!form.watch("country_id")}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger className="w-full relative disabled:opacity-100">
-                                                        <SelectValue
-                                                            placeholder={
-                                                                loadingStates
-                                                                    ? "Loading states..."
-                                                                    : "Select a state"
-                                                            }
-                                                        />
-                                                        {loadingStates && <div className="absolute flex justify-center items-center w-5 h-5 right-2 bg-background z-10 top-1/2 -translate-y-1/2">
-                                                            <Spinner />
-                                                        </div>}
+                                                        <SelectValue placeholder="Select a state" />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent align="start">
@@ -542,8 +483,8 @@ const AddStudentDialog = ({ children }) => {
                                                             No states available
                                                         </div>
                                                     ) : (
-                                                        states.map((state) => (
-                                                            <SelectItem key={state.name} value={state.name}>
+                                                        states.map((state, i) => (
+                                                            <SelectItem key={i} value={state.id}>
                                                                 {state.name}
                                                             </SelectItem>
                                                         ))
@@ -559,37 +500,14 @@ const AddStudentDialog = ({ children }) => {
                                     render={({ field }) => (
                                         <FormItem className="">
                                             <FormLabel>City</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                                disabled={!form.watch("state") || loadingCities}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full relative disabled:opacity-100">
-                                                        <SelectValue
-                                                            placeholder={
-                                                                loadingCities ? "Loading cities..." : "Select a city"
-                                                            }
-                                                        />
-                                                        {loadingCities && <div className="absolute flex justify-center items-center w-5 h-5 right-2 bg-background z-10 top-1/2 -translate-y-1/2">
-                                                            <Spinner />
-                                                        </div>}
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent align="start">
-                                                    {cities.length === 0 ? (
-                                                        <div className="py-2 px-2 text-sm text-muted-foreground">
-                                                            No cities available
-                                                        </div>
-                                                    ) : (
-                                                        cities.map((city) => (
-                                                            <SelectItem key={city} value={city}>
-                                                                {city}
-                                                            </SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
+                                            <FormControl>
+                                                <Input
+                                                    error={form.formState.errors.city}
+                                                    placeholder="Enter city name"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
