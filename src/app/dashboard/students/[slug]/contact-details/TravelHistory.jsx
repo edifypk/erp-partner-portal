@@ -54,7 +54,7 @@ const TravelHistory = ({ contact, editMode, updateContact, loading }) => {
     const countries = getCountries()
 
     return (
-        <div className='p-4 pb-2 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-4 pb-2 border rounded-xl bg-linear-to-br from-primary/5 to-transparent'>
             <div className='flex justify-between items-center mb-2'>
                 <HeadingWithLogo
                     title="Travel History"

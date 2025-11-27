@@ -55,7 +55,7 @@ const ContactInfo = ({ contact, editMode, updateContact, loading }) => {
   ]
 
   return (
-    <div className='px-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+    <div className='px-6 py-4 border rounded-xl bg-linear-to-br from-primary/5 to-transparent'>
       <div className='flex justify-between items-start'>
         <HeadingWithLogo
           title="Contact Info"

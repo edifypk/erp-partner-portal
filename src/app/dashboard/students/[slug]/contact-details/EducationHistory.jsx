@@ -50,7 +50,7 @@ const EducationHistory = ({ contact, editMode, updateContact, loading }) => {
     const [editModalOpen, setEditModalOpen] = useState(false)
 
     return (
-        <div className='p-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-4 border rounded-xl bg-linear-to-br from-primary/5 to-transparent'>
 
             <div className='flex justify-between items-center'>
 

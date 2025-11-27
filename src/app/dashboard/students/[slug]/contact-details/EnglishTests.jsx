@@ -40,7 +40,7 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
     const englishTests = getEnglishTests()
 
     return (
-        <div className='p-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-6 py-4 border rounded-xl bg-linear-to-br from-primary/5 to-transparent'>
             <div className='flex justify-between items-center'>
                 <HeadingWithLogo
                     title="English Tests"
