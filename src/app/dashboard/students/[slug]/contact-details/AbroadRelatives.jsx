@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from "@/components/ui/switch"
 import { AiUserIcon } from 'hugeicons-react'
 import flags from 'react-phone-number-input/flags'
+import HeadingWithLogo from './HeadingWithLogo'
+import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
     abroad_relatives: z.array(
@@ -30,21 +32,21 @@ const formSchema = z.object({
 })
 
 const AbroadRelatives = ({ contact, editMode, updateContact, loading }) => {
-    const [open, setOpen] = useState(contact?.abroad_relatives?.length == 0 ? false : true)
+    const [open, setOpen] = useState((!contact?.abroad_relatives || contact?.abroad_relatives?.length == 0) ? false : true)
     const [editModalOpen, setEditModalOpen] = useState(false)
 
     const { getCountries } = useData()
     const countries = getCountries()
 
     return (
-        <div className='px-6 pt-4 pb-2 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-4 pb-2 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
             <div className='flex justify-between items-center mb-2'>
-                <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-                    <AiUserIcon className='-translate-x-1' />
-                    Relatives Abroad
-                </h2>
+                <HeadingWithLogo
+                    title="Relatives Abroad"
+                    icon="/images/contact-sections/person.webp"
+                />
                 {
-                    (contact?.abroad_relatives?.length == 0 && editMode) ?
+                    ((!contact?.abroad_relatives || contact?.abroad_relatives?.length == 0) && editMode) ?
                         <Switch
                             checked={open}
                             onCheckedChange={setOpen}
@@ -63,23 +65,18 @@ const AbroadRelatives = ({ contact, editMode, updateContact, loading }) => {
                 }
             </div>
 
-            {open && <div className=''>
+            {open && <div className='py-4'>
                 {
                     contact?.abroad_relatives?.length > 0 ? (
-                        contact?.abroad_relatives?.map((v, i) => {
+                        contact?.abroad_relatives?.map((v, i, arr) => {
                             return (
-                                <div key={i} className='flex gap-6 relative'>
-                                    <div className='flex flex-col items-center gap-1'>
-                                        <div className='text-xsl'>
-                                            
-                                        </div>
-                                        {
-                                            (contact?.abroad_relatives?.length != (i + 1)) &&
-                                            <div className='w-[2px] rounded-full flex-1 bg-[#e8e8e8]'></div>
-                                        }
+                                <div key={i} style={{transform:`translateY(-${8 * i}px)`}} className={cn('flex gap-[10px]')}>
+                                    <div className='flex flex-col items-center w-6'>
+                                        <div className='w-2 aspect-square translate-y-2 rounded-[1px] rotate-45 bg-[#0088ff]'></div>
+                                        {arr.length != (i + 1) && <div className='flex-1 rounded-full w-[2px] bg-[#0088ff]'></div>}
                                     </div>
 
-                                    <div className='pb-6'>
+                                    <div className='flex-1 pb-6'>
                                         <div className='text-gray-800 font-medium'>{countries.find(c => c.code === v.country_iso)?.name || v.country_iso || 'N/A'}</div>
                                         <div className='text-sm -translate-y-[2px] text-gray-600'>
                                             {v.name} • {v.relation} • {v.status_in_country}

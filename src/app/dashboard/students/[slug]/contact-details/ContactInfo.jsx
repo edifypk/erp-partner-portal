@@ -17,38 +17,39 @@ import { DataContext } from '@/context/DataContextProvider'
 import { useQueryClient } from '@tanstack/react-query'
 import { Call02Icon, Contact02Icon, ContactBookIcon, EarthIcon, Location04Icon, Mail01Icon, WhatsappIcon } from 'hugeicons-react'
 import flags from 'react-phone-number-input/flags'
+import HeadingWithLogo from './HeadingWithLogo'
 
 const ContactInfo = ({ contact, editMode, updateContact, loading }) => {
 
   const [open, setOpen] = useState(false)
-  
+
   // Get country and state names from associations
   const countryName = contact?.country?.name || '';
   const stateName = contact?.state?.name || '';
-  
+
   var contactsList = [
     {
       label: "Phone Number",
       icon: Call02Icon,
-      className:"",
+      className: "",
       value: contact?.phone
     },
     {
       label: "Email",
       icon: Mail01Icon,
-      className:"",
+      className: "",
       value: contact?.email
     },
     {
       label: "Location",
       icon: EarthIcon,
-      className:"col-span-2",
+      className: "col-span-2",
       value: [contact?.city, stateName, countryName].filter(Boolean).join(', ') || '--'
     },
     {
       label: "Address",
       icon: Location04Icon,
-      className:"col-span-2",
+      className: "col-span-2",
       value: contact?.address
     },
   ]
@@ -56,10 +57,10 @@ const ContactInfo = ({ contact, editMode, updateContact, loading }) => {
   return (
     <div className='px-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
       <div className='flex justify-between items-start'>
-        <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-          <Contact02Icon className='-translate-x-1' />
-          Contact Info
-          </h2>
+        <HeadingWithLogo
+          title="Contact Info"
+          icon="/images/contact-sections/call.webp"
+        />
         <div className='w-10 h-10 flex items-center justify-center'>
           {
             editMode ? (
@@ -110,7 +111,7 @@ const formSchema = z.object({
       if (!val || val.trim() === "") return true;
       // Otherwise, validate the phone number
       return isValidPhoneNumber(val);
-    }, 
+    },
     { message: "Invalid phone number" }
   ).nullable(),
   address: z.string().min(1, "Address is required"),
@@ -161,16 +162,16 @@ const UpdateModal = ({ children, open, setOpen, contact, updateContact, loading 
 
   const { getCountries, getStatesOfCountry } = useContext(DataContext)
   const countries = getCountries()
-  
+
   // Get the current country_id from form to determine which states to fetch
   const currentCountryId = form.watch("country_id");
   const currentCountry = countries?.find(c => c.id === currentCountryId);
   const countryIdForStates = currentCountryId || defaultCountryId;
   const countryCodeForStates = currentCountry?.code || defaultCountryCode;
-  
-  const statesOfCountry = getStatesOfCountry({ 
+
+  const statesOfCountry = getStatesOfCountry({
     country_id: countryIdForStates,
-    country_code: countryCodeForStates 
+    country_code: countryCodeForStates
   })
 
 

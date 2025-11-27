@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { Switch } from "@/components/ui/switch"
 import { Airplane01Icon } from 'hugeicons-react'
 import flags from 'react-phone-number-input/flags'
+import HeadingWithLogo from './HeadingWithLogo'
 
 const formSchema = z.object({
     travel_history: z.array(
@@ -46,21 +47,21 @@ const months = [
 ]
 
 const TravelHistory = ({ contact, editMode, updateContact, loading }) => {
-    const [open, setOpen] = useState(contact?.travel_history?.length == 0 ? false : true)
+    const [open, setOpen] = useState((!contact?.travel_history || contact?.travel_history?.length == 0) ? false : true)
     const [editModalOpen, setEditModalOpen] = useState(false)
 
     const { getCountries } = useContext(DataContext)
     const countries = getCountries()
 
     return (
-        <div className='px-6 pt-4 pb-2 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-4 pb-2 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
             <div className='flex justify-between items-center mb-2'>
-                <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-                    <Airplane01Icon className='-translate-x-1' />
-                    Travel History
-                </h2>
+                <HeadingWithLogo
+                    title="Travel History"
+                    icon="/images/contact-sections/flight.webp"
+                />
                 {
-                    (contact?.travel_history?.length == 0 && editMode) ?
+                    ((!contact?.travel_history || contact?.travel_history?.length == 0) && editMode) ?
                         <Switch
                             checked={open}
                             onCheckedChange={setOpen}
@@ -79,23 +80,18 @@ const TravelHistory = ({ contact, editMode, updateContact, loading }) => {
                 }
             </div>
 
-            {open && <div className=''>
+            {open && <div className='py-4'>
                 {
                     contact?.travel_history?.length > 0 ? (
-                        contact?.travel_history?.map((v, i) => {
+                        contact?.travel_history?.map((v, i, arr) => {
                             return (
-                                <div key={i} className='flex gap-6 relative'>
-                                    <div className='flex flex-col items-center gap-1'>
-                                        <div className='text-xl'>
-                                            
-                                        </div>
-                                        {
-                                            (contact?.travel_history?.length != (i + 1)) &&
-                                            <div className='w-[2px] rounded-full flex-1 bg-[#e8e8e8]'></div>
-                                        }
+                                <div key={i} style={{transform:`translateY(-${8 * i}px)`}} className={cn('flex gap-[10px]')}>
+                                    <div className='flex flex-col items-center w-6'>
+                                        <div className='w-2 aspect-square translate-y-2 rounded-[1px] rotate-45 bg-[#0088ff]'></div>
+                                        {arr.length != (i + 1) && <div className='flex-1 rounded-full w-[2px] bg-[#0088ff]'></div>}
                                     </div>
 
-                                    <div className='pb-6'>
+                                    <div className='flex-1 pb-6'>
                                         <div className='text-gray-800 font-medium'>{countries.find(c => c.code === v.country_iso)?.name || v.country_iso || 'N/A'}</div>
                                         <div className='text-sm -translate-y-[2px] text-gray-600'>
                                             {months.find(m => m.value === v.month)?.label} {v.year} • {v.duration} • {v.visa_type}
@@ -103,7 +99,6 @@ const TravelHistory = ({ contact, editMode, updateContact, loading }) => {
                                         {v.purpose_of_visit && (
                                             <div className='text-xs -translate-y-[2px] text-gray-500'>{v.purpose_of_visit}</div>
                                         )}
-
                                     </div>
                                 </div>
                             )

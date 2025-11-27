@@ -7,6 +7,7 @@ import ThemeModeToggle from '../ThemeModeToggle'
 import ThemeColorToggle from '../ThemColorToggle'
 import { ThemeSwitcher } from '../ui/shadcn-io/theme-switcher'
 import { useTheme } from 'next-themes'
+import { useAuth } from '@/context/AuthContextProvider'
 
 const DashbaordNavbar = () => {
 

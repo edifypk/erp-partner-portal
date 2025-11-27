@@ -13,6 +13,8 @@ import { Loader2, Trash2 } from 'lucide-react'
 import SelectEducationLevel from '@/components/crm/Enquiry/SelectEducationLevel'
 import { Switch } from "@/components/ui/switch"
 import { GraduationScrollIcon } from 'hugeicons-react'
+import HeadingWithLogo from './HeadingWithLogo'
+import { cn } from '@/lib/utils'
 
 
 const formSchema = z.object({
@@ -48,13 +50,14 @@ const EducationHistory = ({ contact, editMode, updateContact, loading }) => {
     const [editModalOpen, setEditModalOpen] = useState(false)
 
     return (
-        <div className='px-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
 
             <div className='flex justify-between items-center'>
-                <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-                    <GraduationScrollIcon className='-translate-x-1' />
-                    Educational History
-                </h2>
+
+                <HeadingWithLogo
+                    title="Educational History"
+                    icon="/images/contact-sections/education.webp"
+                />
 
 
                 {
@@ -83,23 +86,29 @@ const EducationHistory = ({ contact, editMode, updateContact, loading }) => {
             {open && <div className='py-4'>
                 {
                     contact?.qualifications?.length > 0 ? (
-                        contact?.qualifications?.map((v, i) => {
+                        contact?.qualifications?.map((v, i, arr) => {
                             return (
-                                <div key={i} className='flex gap-4'>
-                                    <div className='text-xl'>
-                                        
+                                <div key={i} style={{transform:`translateY(-${8 * i}px)`}} className={cn('flex gap-[10px]')}>
+                                    
+                                    
+                                    <div className='flex flex-col items-center w-6'>
+                                        <div className='w-2 aspect-square translate-y-2 rounded-[1px] rotate-45 bg-[#0088ff]'></div>
+                                        {arr.length != (i + 1) && <div className='flex-1 rounded-full w-[2px] bg-[#0088ff]'></div>}
                                     </div>
 
-                                    <div className=''>
-                                        <div className='text-gray-800 font-medium'>{v.edu_level?.name}</div>
-                                        <div className='text-sm text-gray-500 flex gap-[6px] items-center'>
-                                            {v.subject}
-                                            <span className='w-1 h-1 rounded-full bg-gray-600'></span>
-                                            {v.year_of_completion}
-                                            <span className='w-1 h-1 rounded-full bg-gray-600'></span>
-                                            {v.marks} {v.grading_scheme && `(${formatGradingScheme(v.grading_scheme)})`}
+
+                                    <div className='flex flex-1 gap-4 pb-6'>
+                                        <div className=''>
+                                            <div className='text-gray-800 font-medium'>{v.edu_level?.name}</div>
+                                            <div className='text-sm text-gray-500 flex gap-[6px] items-center'>
+                                                {v.subject}
+                                                <span className='w-1 h-1 rounded-full bg-gray-600'></span>
+                                                {v.year_of_completion}
+                                                <span className='w-1 h-1 rounded-full bg-gray-600'></span>
+                                                {v.marks} {v.grading_scheme && `(${formatGradingScheme(v.grading_scheme)})`}
+                                            </div>
+                                            <div className='text-sm text-gray-500'>{v.institute}</div>
                                         </div>
-                                        <div className='text-sm text-gray-500'>{v.institute}</div>
                                     </div>
                                 </div>
                             )

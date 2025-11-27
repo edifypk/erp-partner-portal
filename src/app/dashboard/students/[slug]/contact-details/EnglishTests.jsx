@@ -16,6 +16,7 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { formatDate } from '@/utils/functions'
 import { Calendar02Icon, Calendar03Icon, ComputerIcon, HeadphonesIcon, KeyboardIcon, LanguageSkillIcon, Mic01Icon, SummationSquareIcon } from 'hugeicons-react'
 import { Switch } from "@/components/ui/switch"
+import HeadingWithLogo from './HeadingWithLogo'
 
 const formSchema = z.object({
     english_tests: z.array(
@@ -41,10 +42,10 @@ const EnglishTests = ({ contact, editMode, updateContact, loading }) => {
     return (
         <div className='p-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
             <div className='flex justify-between items-center'>
-                <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-                    <LanguageSkillIcon className='-translate-x-1' />
-                    English Tests
-                </h2>
+                <HeadingWithLogo
+                    title="English Tests"
+                    icon="/images/contact-sections/translate.webp"
+                />
                 {
                     (contact?.english_tests?.length == 0 && editMode) ?
                         <Switch

@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker'
 import { Loader2 } from 'lucide-react'
 import { UserCircleIcon } from 'hugeicons-react'
+import HeadingWithLogo from './HeadingWithLogo'
 
 
 function formatDate(date) {
@@ -35,10 +36,11 @@ const PersonalInfo = ({ contact, editMode, updateContact, loading }) => {
   return (
     <div className='p-6 pt-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
       <div className='flex justify-between items-center mb-2'>
-        <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-          <UserCircleIcon className='-translate-x-1' />
-          Personal Information
-        </h2>
+        
+        <HeadingWithLogo
+          title="Personal Information"
+          icon="/images/contact-sections/contact.webp"
+        />
         <div className='w-10 h-10 flex items-center justify-center'>
           {
             editMode ? (

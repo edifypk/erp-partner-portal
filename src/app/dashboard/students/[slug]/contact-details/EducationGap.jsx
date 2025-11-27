@@ -12,6 +12,7 @@ import { Loader2, Trash2 } from 'lucide-react'
 import { Switch } from "@/components/ui/switch"
 import { Alert02Icon } from 'hugeicons-react'
 import { DatePicker } from '@/components/ui/date-picker'
+import HeadingWithLogo from './HeadingWithLogo'
 
 const formSchema = z.object({
     education_gaps: z.array(
@@ -33,21 +34,21 @@ function formatDate(date) {
 }
 
 const EducationGap = ({ contact, editMode, updateContact, loading }) => {
-    const [open, setOpen] = useState(contact?.education_gaps?.length == 0 ? false : true)
+    const [open, setOpen] = useState((!contact?.education_gaps || contact?.education_gaps?.length == 0) ? false : true)
     const [editModalOpen, setEditModalOpen] = useState(false)
 
     return (
-        <div className='px-6 py-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
+        <div className='p-4 border rounded-xl bg-gradient-to-br from-primary/5 to-transparent'>
 
             <div className='flex justify-between items-center'>
-                <h2 className='tracking-normal font-semibold flex items-center gap-1'>
-                    <Alert02Icon className='-translate-x-1' />
-                    Education Gap
-                </h2>
 
+                <HeadingWithLogo
+                    title="Education Gap"
+                    icon="/images/contact-sections/info.webp"
+                />
 
                 {
-                    (contact?.education_gaps?.length == 0 && editMode) ?
+                    ((!contact?.education_gaps || contact?.education_gaps?.length == 0) && editMode) ?
                         <Switch
                             checked={open}
                             onCheckedChange={setOpen}
@@ -70,19 +71,20 @@ const EducationGap = ({ contact, editMode, updateContact, loading }) => {
 
             {open && <div className='py-4'>
                 {
-                    contact?.education_gaps?.length > 0 ? (
-                        contact?.education_gaps?.map((v, i) => {
+                    contact?.education_gaps && contact?.education_gaps?.length > 0 ? (
+                        contact?.education_gaps?.map((v, i, arr) => {
                             return (
-                                <div key={i} className='flex gap-4 mb-4'>
-                                    <div className='text-xl'>
-                                        
+                                <div key={i} style={{transform:`translateY(-${8 * i}px)`}} className={'flex gap-[10px]'}>
+                                    <div className='flex flex-col items-center w-6'>
+                                        <div className='w-2 aspect-square translate-y-2 rounded-[1px] rotate-45 bg-[#0088ff]'></div>
+                                        {arr.length != (i + 1) && <div className='flex-1 rounded-full w-[2px] bg-[#0088ff]'></div>}
                                     </div>
 
-                                    <div className='flex-1'>
-                                        <div className='text-sm text-gray-500 flex gap-[6px] items-center mb-1'>
+                                    <div className='flex-1 pb-6 tracking-tight'>
+                                        <div className='text-gray-800 font-medium flex gap-[6px] items-center mb-1'>
                                             {formatDate(v.from_date)} - {v.to_date ? formatDate(v.to_date) : 'Present'}
                                         </div>
-                                        <div className='text-gray-800 font-medium'>{v.reason}</div>
+                                        <div className='text-sm text-gray-500'>{v.reason}</div>
                                     </div>
                                 </div>
                             )
