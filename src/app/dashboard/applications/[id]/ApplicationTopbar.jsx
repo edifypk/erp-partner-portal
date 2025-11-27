@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContextProvider';
 import BookEnrollmentDialog from './BookEnrollmentDialog';
 import Link from 'next/link';
+import flags from 'react-phone-number-input/flags';
 
 const ApplicationTopbar = ({ env, process, application }) => {
 
@@ -56,11 +57,15 @@ const ApplicationTopbar = ({ env, process, application }) => {
     }
 
 
+    const country = application?.program?.institute?.country?.country;
+    var Flag = country?.code ? flags[country.code] : null
+
+
     return (
         <>
 
 
-            <div style={{ backgroundImage: `url('${application?.program?.institute?.banner_url}')` }} className="bg-cover overflow-hidden bg-center">
+            <div style={{ backgroundImage: `url('${application?.program?.institute?.banner_url}')` }} className="bg-cover overflow-hidden bg-center relative">
                 <div className="flex-1 px-6 pb-6 flex flex-col justify-end bg-linear-to-b from-white/50 backdrop-blur-sm to-white h-[200px]">
 
                     <div className='flex items-end justify-between'>
@@ -94,10 +99,10 @@ const ApplicationTopbar = ({ env, process, application }) => {
                                             label: "Apply Level",
                                             value: application?.program?.program_level?.name + " " + application?.program?.program_level?.family
                                         },
-                                        {
-                                            label: "Country",
-                                            value: application?.program?.institute?.country?.name
-                                        },
+                                        // {
+                                        //     label: "Country",
+                                        //     value: application?.program?.institute?.country?.name
+                                        // },
                                         {
                                             label: "Intake",
                                             value: (application?.intake_month).toUpperCase() + " - " + application?.intake_year
@@ -130,16 +135,15 @@ const ApplicationTopbar = ({ env, process, application }) => {
                             {isAllMilestonesCompleted ?
 
                                 <div>
-
-                                    {(isEligibleForEnrollment) ? <BookEnrollmentDialog application={application} /> : <Badge variant='solid' radius='full' color="yellow" size="3">Booking Pending</Badge>}
-
-                                    {application?.is_enrollment_booked &&
-                                        <Link href={`/dashboard/enrollments/${application?.enrollment?.id}`}>
+                                    {application?.is_enrollment_booked ?
+                                        <Link href={`/dashboard/enrollments`}>
                                             <Badge variant='solid' radius='full' color="green" size="3">Enrollment Booked</Badge>
                                         </Link>
+                                        : (
+                                            isEligibleForEnrollment ? <BookEnrollmentDialog application={application} /> : <Badge variant='solid' radius='full' color="yellow" size="3">Booking Pending</Badge>
+                                        )
                                     }
                                 </div>
-
                                 :
                                 <div className='flex items-center gap-2'>
 
@@ -179,6 +183,14 @@ const ApplicationTopbar = ({ env, process, application }) => {
 
                     </div>
 
+                </div>
+
+
+                <div className='absolute top-6 right-6 flex items-center gap-4'>
+                    <div className="flex bg-gray-100 items-center gap-1 py-[2px] pl-3 pr-2 rounded-full">
+                        <Flag width={25} className="h-[25px]" height={25} />
+                        <div className='text-sm font-medium'>{country?.name || 'N/A'}</div>
+                    </div>
                 </div>
             </div>
 
