@@ -343,7 +343,7 @@ export default function SignupForm({ onSubmitSuccess }) {
           </div>
 
           <div className="flex justify-between items-center">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={loading}>
               {loading && <div className='flex items-center gap-[2px]'>
                 <div className='h-1 w-1 rounded-full bg-gray-200 animate-bounce [animation-delay:-0.3s]'></div>
                 <div className='h-1 w-1 rounded-full bg-gray-200 animate-bounce [animation-delay:-0.15s]'></div>

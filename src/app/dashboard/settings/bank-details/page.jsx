@@ -419,10 +419,10 @@ const BankDetailsPage = () => {
       {/* Bank Accounts List */}
       <div className="grid lg:grid-cols-2 xl:grid-cols-2 gap-8 mb-8">
         {bankAccounts.length === 0 ? (
-          <div className="text-center col-span-2 py-12 bg-white rounded-lg border border-gray-200">
-            <BankIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No bank accounts yet</h3>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="bg-linear-to-br from-primary/5 to-transparent rounded-3xl border p-6 col-span-2 text-center py-10">
+            <BankIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" strokeWidth={1} />
+            <h3 className="text-lg font-semibold tracking-tight text-gray-900">No Bank Accounts Added Yet!</h3>
+            <p className="text-xs text-gray-500">
               Add a bank account to receive payments for your commissions
             </p>
           </div>

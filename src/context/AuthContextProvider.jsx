@@ -15,9 +15,9 @@ const AuthContextProvider = ({ children }) => {
   const [logoUrl, setLogoUrl] = useState(() => {
     // Initialize from localStorage on mount, or use default
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('agentLogo') || "/images/eLogo.svg";
+      return localStorage.getItem('agentLogo') || "/images/edify.png";
     }
-    return "/images/eLogo.svg";
+    return "/images/edify.png";
   })
   const pathname = usePathname()
   const router = useRouter()
@@ -133,12 +133,14 @@ const AuthContextProvider = ({ children }) => {
       setAgentData(agentDataResponse);
       
       // Update logoUrl when agentData has a logo
-      if (agentDataResponse?.logo && agentDataResponse?.logo_url) {
+    if (agentDataResponse?.logo && agentDataResponse?.logo_url) {
         const newLogoUrl = agentDataResponse.logo_url;
         setLogoUrl(newLogoUrl);
         if (typeof window !== 'undefined') {
           localStorage.setItem('agentLogo', newLogoUrl);
         }
+      }else{
+        localStorage.setItem('agentLogo', '/images/edify.png');
       }
     } else if (!user?.subagent_team_member?.agent?.id) {
       setAgentData(null);

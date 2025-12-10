@@ -45,7 +45,7 @@ export function TeamSwitcher({
               {/* Logo Here */}
               <div
                 className="flex border outline-hidden rounded-full aspect-square size-8 dark:bg-white items-center justify-center  bg-sidebar-primary text-sidebar-primary-foreground">
-                <img className="w-full h-full rounded-full object-cover" src={agentData?.logo ? agentData?.logo_url : "/images/eLogo.svg"} alt=""  />
+                <img className="w-full h-full rounded-full object-cover" src={agentData?.logo ? agentData?.logo_url : "/images/edify.png"} alt=""  />
               </div>
 
 

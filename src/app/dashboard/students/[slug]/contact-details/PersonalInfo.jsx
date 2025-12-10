@@ -34,8 +34,8 @@ const PersonalInfo = ({ contact, editMode, updateContact, loading }) => {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className='p-6 pt-4 border rounded-xl bg-linear-to-br from-primary/5 to-transparent'>
-      <div className='flex justify-between items-center mb-2'>
+    <div className='p-4 border rounded-xl bg-linear-to-br from-primary/5 to-transparent'>
+      <div className='flex justify-between items-start mb-2'>
         
         <HeadingWithLogo
           title="Personal Information"

@@ -303,3 +303,12 @@
   border-radius: 0.5rem;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);
 }
+
+
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+    cursor: pointer !important;
+}
