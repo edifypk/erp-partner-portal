@@ -29,7 +29,7 @@ import { useTheme } from 'next-themes'
 
 const Profile = () => {
 
-    const { user, isLoading } = useAuth()
+    const { user, isLoading, logout } = useAuth()
 
     const { theme, setTheme } = useTheme()
 
@@ -127,7 +127,7 @@ const Profile = () => {
 
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
                     Log out
                     <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                 </DropdownMenuItem>
